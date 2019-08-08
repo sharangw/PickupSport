@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import datatime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -70,6 +70,7 @@ class Event(db.Model):
     organizer = db.Column(db.String(255))
     players = db.Column(db.Integer)
     time = db.Column(db.DateTime)
+    length = db.Column(db.Integer)
     capacity = db.Column(db.Integer)
     description = db.Column(db.String(255))
     venueId = db.Column(db.Integer)
@@ -97,11 +98,27 @@ class Players(db.Model):
 # [END model]
 
 
-# def insertEvents():
-#     eventDict = { "organizer" : "A",
-#                    "players" : "0",
-#                     "time": "[datetime.datetime(2019, 9, 1, 18, 0, 0, 000000, tzinfo=tzutc())]",
-#                    ""}
+def insertEvents():
+    event1Dict = {"Organizer": "Austin FC", "Players": 4,"Time": datetime.datetime(2019,8,10,18),"Length": 90, "VID":1,"Capacity":20,"Description":"Pick up soccer"}
+    event2Dict = {"Organizer": "Austin fan", "Players": 10,"Time": datetime.datetime(2019,8,15,19),"Length": 50, "VID":2,"Capacity":12,"Description":"Soccer Tournament"}
+    event3Dict = {"Organizer": "Tennis Austin", "Players": 2,"Time": datetime.datetime(2019,8,13,18),"Length": 75, "VID":5,"Capacity":4,"Description":"Junior drop in organized by Tennis Texas club"}
+    event4Dict = {"Organizer": "Austin Rockets", "Players": 3,"Time": datetime.datetime(2019,8,21,14),"Length": 65, "VID":4,"Capacity":10,"Description":"Basketball fans can not miss this"}
+    event5Dict = {"Organizer": "Cricket Austin", "Players": 5,"Time": datetime.datetime(2019,8,25,10),"Length": 80, "VID":1,"Capacity":10,"Description":"League time"}
+    event6Dict = {"Organizer": "Soccer@Austin", "Players": 7,"Time": datetime.datetime(2019,8,16,18,30),"Length": 70,"VID":3,"Capacity":22,"Description":"Soccer game"}
+    
+    event = Event(**event1Dict)
+    db.session.add(event)
+    db.session.commit()
+    return from_sql(event)
+
+def insertPlayers():
+    player1Dict = {"userid":1, "eventid": 2}
+    player2Dict = {"userid":3, "eventid": 5}
+
+    player = Event(**player1Dict)
+    db.session.add(player)
+    db.session.commit()
+    return from_sql(player)
 
 def insertuser():
     userDict = { "name" : "Michael Jordan",
