@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Venues</h3>
+
+{% for venue in venues %}
+<div class="media">
+  <ul href="/venues/{{venues.id}}">
+    <div class="media-body">
+      <h4>{{venue.name}}</h4>
+      <p>{{venue.description}}</p>
+    </div>
+  </ul>
+</div>
+{% else %}
+<p>No venues found</p>
+{% endfor %}
+
+{% if next_page_token %}
+<nav>
+  <ul class="pager">
+    <li><a href="?page_token={{next_page_token}}">More</a></li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
