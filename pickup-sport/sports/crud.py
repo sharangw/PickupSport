@@ -28,16 +28,33 @@ def login():
         email = data['email']
         password = data['password']
         print("here: {}, {}".format(email, password))
-        isUser = get_model().getuser(email,password)
-        print("user {}".format(isUser))
-        if isUser == "1":
-            return redirect("events.html")
-        else:
+        userId = get_model().getuser(email,password)
+        if userId == "0":
             print("no no no")
+        else:
+            return redirect("/{}/events".format(userId))
 
 
     return render_template("home.html", user={})
 
+@crud.route('/<id>/events')
+def showEvents(id):
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    events = get_model().showEventsByUser(id)
+    # events, next_page_token = get_model().showAllEvents(cursor=token)
+    # return redirect("/{}/events.html".format(id))
+    return render_template("events.html", events = events)
+
+@crud.route('/<id>')
+def view(id):
+    user = get_model().read(id)
+    return render_template("view.html", user=user)
+# def view(id):
+#     book = get_model().read(id)
+#     return render_template("view.html", book=book)
 
 @crud.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -47,7 +64,6 @@ def admin():
         password = data['password']
         print("here: {}, {}".format(email, password))
         isUser = get_model().getuser(email,password)
-        print("user {}".format(isUser))
         if isUser == "1":
             return redirect("events.html")
         else:
@@ -80,15 +96,6 @@ def list():
 #         =,
 #         next_page_token=next_page_token)
 
-@crud.route('/events')
-def showEvents():
-    token = request.args.get('page_token', None)
-    if token:
-        token = token.encode('utf-8')
-
-    events, next_page_token = get_model().showAllEvents(cursor=token)
-    return render_template("events.html", events = events, next_page_token = next_page_token)
-
 @crud.route('/venues')
 def showVenues():
     token = request.args.get('page_token', None)
@@ -97,15 +104,6 @@ def showVenues():
 
     venues, next_page_token = get_model().showAllVenues(cursor=token)
     return render_template("venues.html", venues = venues, next_page_token = next_page_token)
-
-@crud.route('/<id>')
-def view(id):
-    user = get_model().read(id)
-    return render_template("view.html", user=user)
-# def view(id):
-#     book = get_model().read(id)
-#     return render_template("view.html", book=book)
-
 
 
 # [START add]
