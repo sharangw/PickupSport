@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import datatime
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import datetime
 
 builtin_list = list
 
@@ -98,15 +99,8 @@ class Players(db.Model):
 # [END model]
 
 
-def insertEvents():
-    event1Dict = {"Organizer": "Austin FC", "Players": 4,"Time": datetime.datetime(2019,8,10,18),"Length": 90, "VID":1,"Capacity":20,"Description":"Pick up soccer"}
-    event2Dict = {"Organizer": "Austin fan", "Players": 10,"Time": datetime.datetime(2019,8,15,19),"Length": 50, "VID":2,"Capacity":12,"Description":"Soccer Tournament"}
-    event3Dict = {"Organizer": "Tennis Austin", "Players": 2,"Time": datetime.datetime(2019,8,13,18),"Length": 75, "VID":5,"Capacity":4,"Description":"Junior drop in organized by Tennis Texas club"}
-    event4Dict = {"Organizer": "Austin Rockets", "Players": 3,"Time": datetime.datetime(2019,8,21,14),"Length": 65, "VID":4,"Capacity":10,"Description":"Basketball fans can not miss this"}
-    event5Dict = {"Organizer": "Cricket Austin", "Players": 5,"Time": datetime.datetime(2019,8,25,10),"Length": 80, "VID":1,"Capacity":10,"Description":"League time"}
-    event6Dict = {"Organizer": "Soccer@Austin", "Players": 7,"Time": datetime.datetime(2019,8,16,18,30),"Length": 70,"VID":3,"Capacity":22,"Description":"Soccer game"}
-    
-    event = Event(**event1Dict)
+def addevent(data):
+    event = Event(**data)
     db.session.add(event)
     db.session.commit()
     return from_sql(event)
@@ -173,6 +167,17 @@ def list(limit=10, cursor=None):
     return (users, next_page)
 # [END list]
 
+def showEventsByUser(userId):
+    print("hsldkfjsd")
+    result = Players.query.get(userId)
+    print("result: {}".format(result))
+    playerInfo = from_sql(result)
+    print("player info: ".format(playerInfo))
+    if not result:
+        return None
+    return from_sql(result)
+
+
 def showAllEvents(limit = 10, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (Event.query
@@ -204,6 +209,16 @@ def read(id):
     if not result:
         return None
     return from_sql(result)
+
+def showevents(limit = 10, cursor = None):
+    query = (Event.query
+             .order_by(Event.name)
+             .limit(limit)
+             .offset(cursor))
+    events = builtin_list(map(from_sql, query.all()))
+    next_page = cursor + limit if len(events) == limit else None
+    return (events, next_page)
+
 # [END read]
 
 def getuser(email,password):
@@ -211,8 +226,10 @@ def getuser(email,password):
     # cursor = connection.cursor()
     userInfo = User.query.filter_by(email=email).first()
     passwordInDatabase = userInfo.password
+    userId = userInfo.id
+    print("userid: {}".format(userId))
     if password == passwordInDatabase: # entered password matches one in database
-        return "1"
+        return userId
     else:
         return "0"
 
