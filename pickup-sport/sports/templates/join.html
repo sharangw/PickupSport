@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Join Event</h3>
+
+<form method="POST" enctype="multipart/form-data">
+
+  Are you sure you want to join this event?
+  {{events.organizer}} {{events.time}} {{events.description}}
+
+  <button type="submit" class="btn btn-success">Yes</button>
+</form>
+
+<a href="" class="btn btn-failure btn-sm">
+  No
+</a>
+{% endblock %}

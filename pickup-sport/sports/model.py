@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask
+from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -168,14 +168,19 @@ def list(limit=10, cursor=None):
 # [END list]
 
 def showEventsByUser(userId):
-    print("hsldkfjsd")
-    result = Players.query.get(userId)
-    print("result: {}".format(result))
-    playerInfo = from_sql(result)
-    print("player info: ".format(playerInfo))
-    if not result:
+    playerResult = Players.query.filter_by(userId = userId).all()
+    print("result: {}".format(playerResult))
+    events = []
+    for r in playerResult:
+        print(r.eventId)
+        eventResult = Event.query.filter_by(id = r.eventId).first()
+        events.append(eventResult)
+    print("events: {}".format(events))
+    # playerInfo = from_sql(result)
+    # print("player info: ".format(playerInfo))
+    if not events:
         return None
-    return from_sql(result)
+    return events
 
 
 def showAllEvents(limit = 10, cursor=None):
@@ -220,6 +225,38 @@ def showevents(limit = 10, cursor = None):
     return (events, next_page)
 
 # [END read]
+
+def getUserById(id):
+    user = User.query.filter_by(id=id).first()
+    print("user {}".format(user))
+    if not user:
+        return None
+    else:
+        return user
+
+def getEventById(id):
+    event = Event.query.filter_by(id=id).first()
+    print("event {}".format(event))
+    if not event:
+        return None
+    else:
+        return event
+
+def addUserToEvent(uid, eid):
+
+    dict = {'userId':uid, 'eventId':eid}
+    player = Players(userId=uid,eventId=eid)
+
+    event = Event.query.filter_by(id = eid).first()
+    print("players: {}".format(event.players))
+
+    if (event.players < event.capacity):
+        event.players = event.players + 1
+        db.session.add(player)
+        db.session.commit()
+        return True
+    else:
+        return False
 
 def getuser(email,password):
     # connection = db.engine.raw_connection()

@@ -1,30 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h3>Events</h3>
 
 {% for event in events %}
 <div class="media">
-  <ul href="/events">
+  <a href="/{{users.id}}/join/{{event.id}}">
     <div class="media-body">
-      Test
       <h4>{{event.organizer}}</h4>
-      <p>{{event.description}}</p>
-      <p>{{event.time}}</p>
     </div>
-  </ul>
+  </a>
+   <p>{{event.description}}</p>
+   <p>{{event.time}}</p>
 </div>
 {% else %}
 <p>No events found</p>
 {% endfor %}
-
-{% if next_page_token %}
-<nav>
-  <ul class="pager">
-    <li><a href="?page_token={{next_page_token}}">More</a></li>
-  </ul>
-</nav>
-{% endif %}
-
 
 {% endblock %}
