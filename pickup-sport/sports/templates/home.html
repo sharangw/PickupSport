@@ -21,9 +21,13 @@
   <button type="submit" class="btn btn-success">Log In</button>
 </form>
 
+{% if user %}
+<p>Wrong password</p>
+{% endif %}
+
 <br>
 <h3>New User?</h3>
-<button type="submit" class="btn btn-success">Sign up</button>
+<a href="/signup">Sign up</a>
 
 <!--{% endblock %}-->
 {# [END form] #}

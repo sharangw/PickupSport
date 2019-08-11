@@ -1,0 +1,53 @@
+{% extends "adminBase.html" %}
+
+{% block content %}
+
+<h3>Manage All Events</h3> <br>
+
+<h4>Event Info</h4>
+
+<div class="media">
+  <table border="1">
+      <thead>
+        <th style="padding:10px">Organizer</th>
+        <th style="padding:10px">Time</th>
+        <th style="padding:10px">Length</th>
+        <th style="padding:10px">Description</th>
+        <th style="padding:10px">Venue</th>
+      </thead>
+
+      {% for event in events %}
+      <tbody>
+      <tr>
+          <td style="padding:10px">{{event.organizer}}</td>
+          <td style="padding:10px">{{event.time}}</td>
+          <td style="padding:10px">{{event.length}} minutes</td>
+          <td style="padding:10px">{{event.description}}</td>
+          <td style="padding:10px">{{event.venueId}}</td>
+      </tr>
+      </tbody>
+      {% else %}
+      <p>No events found</p>
+      {% endfor %}
+  </table>
+
+</div>
+
+<br><br>
+
+{# [START form] #}
+<h4>Remove Event</h4>
+<form method="POST" enctype="multipart/form-data">
+
+    <select id="events" name="events">
+    <option value="" selected disabled hidden>Choose Event here</option>
+    {% for event in events%}
+        <option value="{{event}}">{{event.organizer}} at {{event.time}}</option>
+    {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-danger">Remove</button>
+</form>
+
+
+{% endblock %}

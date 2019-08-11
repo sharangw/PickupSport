@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "adminBase.html" %}
 
 {% block content %}
-<h3>My Events</h3>
+<h3>My Events and Users</h3>
 
 <div class="media">
   <table border="1">
@@ -36,6 +36,14 @@
 
 <a href="/{{users.id}}/events" class="btn btn-success btn-sm">
   Join an event
+</a>
+
+<a href="/admin/events" class="btn btn-warning btn-sm">
+  Remove an event
+</a>
+
+<a href="/admin/users" class="btn btn-warning btn-sm">
+  Remove a user
 </a>
 
 {% if next_page_token %}

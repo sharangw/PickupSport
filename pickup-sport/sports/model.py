@@ -36,21 +36,6 @@ def from_sql(row):
     return data
 
 # [START model]
-# class Book(db.Model):
-#     __tablename__ = 'books'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(255))
-#     author = db.Column(db.String(255))
-#     publishedDate = db.Column(db.String(255))
-#     imageUrl = db.Column(db.String(255))
-#     description = db.Column(db.String(4096))
-#     createdBy = db.Column(db.String(255))
-#     createdById = db.Column(db.String(255))
-#
-#     def __repr__(self):
-#         return "<Book(title='%s', author=%s)" % (self.title, self.author)
-
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -242,6 +227,14 @@ def getEventById(id):
     else:
         return event
 
+def getVenueById(id):
+    venue = Venue.query.filter_by(id=id).first()
+    print("venue {}".format(venue))
+    if not venue:
+        return None
+    else:
+        return venue
+
 def addUserToEvent(uid, eid):
 
     dict = {'userId':uid, 'eventId':eid}
@@ -262,46 +255,75 @@ def getuser(email,password):
     # connection = db.engine.raw_connection()
     # cursor = connection.cursor()
     userInfo = User.query.filter_by(email=email).first()
-    passwordInDatabase = userInfo.password
-    userId = userInfo.id
-    print("userid: {}".format(userId))
-    if password == passwordInDatabase: # entered password matches one in database
-        return userId
+    if (userInfo is not None):
+        passwordInDatabase = userInfo.password
+        userId = userInfo.id
+        print("userid: {}".format(userId))
+        if password == passwordInDatabase:  # entered password matches one in database
+            return userId
+        else:
+            return "0"
     else:
         return "0"
 
-# [START create]
-# def create(data):
-#     book = Book(**data)
-#     db.session.add(book)
-#     db.session.commit()
-#     return from_sql(book)
+def getadmin(email,password):
+    userInfo = User.query.filter_by(email=email).first()
+    if (userInfo is not None):
+        passwordInDatabase = userInfo.password
+        userId = userInfo.id
+        admin = userInfo.admin
+        print("is admin: {}".format(admin))
+        if admin == "1":
+            if password == passwordInDatabase:  # entered password matches one in database
+                return userId
+            else:
+                return "0"
+        else:
+            return "0"
+
+    else:
+        return "0"
+
+
+def showEventByVenue(venueId):
+
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description).filter(Venue.id == venueId).all()
+    for e in events:
+        print('{}'.format(e[0].organizer))
+        print('{}'.format(e[0].time))
+        print('{}'.format(e[0].length))
+        print('{}'.format(e[0].description))
+    return events
+
 def create(data):
     user = User(**data)
     db.session.add(user)
     db.session.commit()
     return from_sql(user)
+
+def createVenue(data):
+    venue = Venue(**data)
+    db.session.add(venue)
+    db.session.commit()
+    return from_sql(venue)
+
 # [END create]
 
-
-
-# [START update]
-# def update(data, id):
-#     book = Book.query.get(id)
-#     for k, v in data.items():
-#         setattr(book, k, v)
-#     db.session.commit()
-#     return from_sql(book)
-# [END update]
-
-
-# def delete(id):
-#     Book.query.filter_by(id=id).delete()
-#     db.session.commit()
 def delete(id):
     User.query.filter_by(id=id).delete()
     db.session.commit()
 
+def deleteEvent(eventId):
+    db.session.query(Event).filter(Event.id==eventId).delete()
+    db.session.commit()
+
+def deleteUser(userId):
+    db.session.query(User).filter(User.id==userId).delete()
+    db.session.commit()
+
+def deleteVenue(venueId):
+    db.session.query(Venue).filter(Venue.id==venueId).delete()
+    db.session.commit()
 
 def _create_database():
     """
