@@ -44,11 +44,11 @@ def login():
         userId = get_model().getuser(email,password)
         if userId == "0":
             print("wrong credentials")
-            return render_template("home.html", credentials = userId)
+            return render_template("home.html", invalid = True)
         else:
             return redirect("/events/{}".format(userId))
 
-    return render_template("home.html", user={})
+    return render_template("home.html", user={}, invalid = False)
 
 @crud.route('/events/<id>')
 def showEventsById(id):
@@ -79,13 +79,15 @@ def showEvents(id):
     if request.method == 'POST':
         venueSelected = request.form.get("venues")
         print(type(venueSelected))
-        print("venue selected: {}".format(venueSelected))
-        print("venue selected: {}".format(venueSelected.find('id')))
-        idIndex = venueSelected.find('id') + 5
-        venueId = venueSelected[idIndex]
-        print("venue selected: {}".format(venueId))
-        filteredEvents = get_model().showEventByVenue(venueId)
-        print("events by venue: {}".format(events))
+        if venueSelected is not None:
+            venueDict = ast.literal_eval(venueSelected)
+            venueId = venueDict['id']
+            print("venue selected: {}".format(venueId))
+            filteredEvents = get_model().showEventByVenue(venueId)
+            print("events by venue: {}".format(events))
+
+        else:
+            return render_template("events.html", events = events, next_page_token = next_page_token, users = users, venues = venues)
 
         return render_template("events.html", events=filteredEvents, users = users, venues = venues)
 
@@ -100,12 +102,16 @@ def joinEvent(uid, eid):
 
     if request.method == 'POST':
         userAdded = get_model().addUserToEvent(uid, eid)
-        if not userAdded:
+        if userAdded == 0:
             print("User cannot be added to this event")
+            return render_template("join.html", events = events, users = users, eventFull = True, playerAdded = False)
+        elif userAdded == -1:
+            print("Player already added")
+            return render_template("join.html", events = events, users = users, playerAdded=True, eventFull = False)
         else:
             return redirect("/events/{}".format(uid))
 
-    return render_template("join.html", events = events)
+    return render_template("join.html", events = events, users = users, eventFull = False, playerAdded = False)
 
 @crud.route('/events')
 def showAllEvents():
@@ -152,11 +158,14 @@ def admin():
         userId = get_model().getadmin(email, password)
         if userId == "0":
             print("wrong credentials")
-            return render_template("admin.html")
+            return render_template("admin.html", invalid = True, notAdmin = False)
+        elif userId == "-1":
+            print("not an admin")
+            return render_template("admin.html", notAdmin = True, invalid = False)
         else:
             return redirect("/admin/events/{}".format(userId))
 
-    return render_template("admin.html", user={})
+    return render_template("admin.html", user={}, invalid = False, notAdmin = False)
 
 @crud.route('/admin/events/<id>')
 def showEventsByIdAdmin(id):
@@ -243,11 +252,3 @@ def addVenue():
             print("no")
 
     return render_template("adminAddVenue.html")
-
-@crud.route('/<id>/delete')
-# def delete(id):
-#     get_model().delete(id)
-#     return redirect(url_for('.list'))
-def delete(id):
-    get_model().delete(id)
-    return redirect(url_for('.list'))

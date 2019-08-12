@@ -6,13 +6,22 @@
 
 <form method="POST" enctype="multipart/form-data">
 
-  Are you sure you want to join this event?
-  {{events.organizer}} {{events.time}} {{events.description}}
+  <p>Are you sure you want to join the <b>{{events.organizer}}</b> happening at <b>{{events.time}}</b> ?</p> <br>
+
+  <p>More information about this event:</p>
+
+   {{events.description}} <br><br>
 
   <button type="submit" class="btn btn-success">Yes</button>
+
+  <a style="font-size: 20px; color:red" href="/{{users.id}}/events" class="btn btn-failure btn-sm">No</a>
 </form>
 
-<a href="" class="btn btn-failure btn-sm">
-  No
-</a>
+<br>
+{% if eventFull %}
+<p style="color:red">Sorry, looks like this event is full!</p>
+{% elif playerAdded %}
+<p style="color:red">Oops, looks like you have already joined this event!</p>
+{% endif %}
+
 {% endblock %}

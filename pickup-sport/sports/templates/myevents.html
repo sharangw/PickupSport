@@ -13,7 +13,8 @@
         <th style="padding:10px">Description</th>
         <th style="padding:10px">Venue</th>
       </thead>
-      {% for event in events %}
+        {% for event in events %}
+            {% if event is not none %}
       <tbody>
         <tr>
             <td style="padding:10px">{{event.organizer}}</td>
@@ -23,7 +24,8 @@
             <td style="padding:10px">{{event.venueId}}</td>
         </tr>
       </tbody>
-      {% else %}
+            {% endif %}
+        {% else %}
       <p>No events found</p>
       {% endfor %}
   </table>

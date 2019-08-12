@@ -1,28 +1,7 @@
 {% extends "adminBase.html" %}
 {% block content %}
 
-<style>
-    .split {
- height: 100%;
- width: 50%;
- position: fixed;
- z-index: 1;
- top: 0;
- overflow-x: hidden;
- padding-top: 20px;
-}
-/* Control the left side */
-.left {
- left: 0;
-}
-/* Control the right side */
-.right {
- right: 0;
- background-color: red;
-}
-</style>
-
-<a href="/admin/add">Add Venue</a>
+<a style="font-size: 20px;" href="/admin/add">Add Venue</a>
 <br><br>
 
 {# [START form] #}
@@ -48,6 +27,7 @@
         <div class="media-body">
           <h4>{{venue.name}}</h4>
           <p>{{venue.description}}</p>
+          <p>ID: {{venue.id}}</p>
         </div>
       </ul>
     </div>

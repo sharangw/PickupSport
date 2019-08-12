@@ -14,7 +14,6 @@
 
 from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 
 builtin_list = list
 
@@ -106,22 +105,6 @@ def insertuser():
                   "password": "goat",
                  "admin": "1"
               }
-    # venue3Dict = { "name" : "Tennis Zone North Austin",
-    #             "location" : "North Austin",
-    #              "description": "Outdoor Tennis stadium at North Austin",
-    #           }
-    # venue4Dict = { "name" : "Soccer Zone East Austin",
-    #             "location" : "West Campus",
-    #              "description": "Outdoor Soccer stadium at East Austin",
-    #           }
-    # venue5Dict = { "name" : "Basketball Field West Austin",
-    #             "location" : "West Campus",
-    #              "description": "Outdoor Basketball Field at West Austin",
-    #           }
-    # venue6Dict = { "name" : "Soccer Zone Downtown Austin",
-    #             "location" : "Downtown",
-    #              "description": "Indoor Tennis courts at Downtown",
-    #             }
 
     user = User(**userDict)
     db.session.add(user)
@@ -130,17 +113,6 @@ def insertuser():
     db.session.commit()
     return from_sql(user)
 
-
-# [START list]
-# def list(limit=10, cursor=None):
-#     cursor = int(cursor) if cursor else 0
-#     query = (Book.query
-#              .order_by(Book.title)
-#              .limit(limit)
-#              .offset(cursor))
-#     books  = builtin_list(map(from_sql, query.all()))
-#     next_page = cursor + limit if len() == limit else None
-#     return (books, next_page)
 def list(limit=10, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (User.query
@@ -188,12 +160,6 @@ def showAllVenues(limit = 10, cursor=None):
     next_page = cursor + limit if len(venues) == limit else None
     return (venues, next_page)
 
-# [START read]
-# def read(id):
-#     result = Book.query.get(id)
-#     if not result:
-#         return None
-#     return from_sql(result)
 def read(id):
     result = User.query.get(id)
     if not result:
@@ -221,6 +187,7 @@ def getUserById(id):
 
 def getEventById(id):
     event = Event.query.filter_by(id=id).first()
+    print("time {}".format(event.time))
     print("event {}".format(event))
     if not event:
         return None
@@ -238,22 +205,37 @@ def getVenueById(id):
 def addUserToEvent(uid, eid):
 
     dict = {'userId':uid, 'eventId':eid}
-    player = Players(userId=uid,eventId=eid)
+    player = Players(userId=uid, eventId=eid)
 
     event = Event.query.filter_by(id = eid).first()
     print("players: {}".format(event.players))
 
     if (event.players < event.capacity):
-        event.players = event.players + 1
-        db.session.add(player)
-        db.session.commit()
-        return True
-    else:
-        return False
+
+        playerAlreadyAdded = 0 # check if same user has joined same event
+
+        playerEvents = Players.query.filter_by(userId = uid).with_entities(Players.eventId).all()
+
+        pEvents = [value for value, in playerEvents] # convert to list of ints with eventIds
+
+        if int(eid) in pEvents:
+            print("event already joined")
+            playerAlreadyAdded += 1
+        else:
+            print("event not joined")
+
+        if playerAlreadyAdded == 0:
+            event.players = event.players + 1
+            db.session.add(player)
+            db.session.commit()
+        else:
+            return -1
+
+        return 1
+    else: # players exceed capacity - event full
+        return 0
 
 def getuser(email,password):
-    # connection = db.engine.raw_connection()
-    # cursor = connection.cursor()
     userInfo = User.query.filter_by(email=email).first()
     if (userInfo is not None):
         passwordInDatabase = userInfo.password
@@ -279,7 +261,7 @@ def getadmin(email,password):
             else:
                 return "0"
         else:
-            return "0"
+            return "-1" # not an admin
 
     else:
         return "0"
@@ -308,10 +290,6 @@ def createVenue(data):
     return from_sql(venue)
 
 # [END create]
-
-def delete(id):
-    User.query.filter_by(id=id).delete()
-    db.session.commit()
 
 def deleteEvent(eventId):
     db.session.query(Event).filter(Event.id==eventId).delete()
