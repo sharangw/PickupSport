@@ -115,14 +115,12 @@ def joinEvent(uid, eid):
 
 @crud.route('/events')
 def showAllEvents():
-    token = request.args.get('page_token', None)
-    if token:
-        token = token.encode('utf-8')
 
-    events, next_page_token = get_model().showAllEvents(cursor=token)
-    venues, next_page_token = get_model().showAllVenues(cursor=token)
+    events = get_model().showAllEventsAndVenue()
+    print(type(events))
+    print("events: {}".format(events[0]))
 
-    return render_template("browseEvents.html", events = events, venues = venues, next_page_token = next_page_token)
+    return render_template("browseEvents.html", events = events)
 
 @crud.route('/venues')
 def showAllVenues():
@@ -146,7 +144,7 @@ def add():
     return render_template("form.html", action="Add", user={})
 
 
-### Admin: ####
+### Admin functionalities: ####
 
 @crud.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -180,12 +178,8 @@ def showEventsByIdAdmin(id):
 
 @crud.route('/admin/events', methods=['GET', 'POST'])
 def showAllEventsAdmin():
-    token = request.args.get('page_token', None)
-    if token:
-        token = token.encode('utf-8')
 
-    events, next_page_token = get_model().showAllEvents(cursor=token)
-    venues, next_page_token = get_model().showAllVenues(cursor=token)
+    events = get_model().showAllEventsAndVenue()
 
     if request.method == 'POST':
         eventSelected = request.form.get("events")
@@ -196,7 +190,7 @@ def showAllEventsAdmin():
         get_model().deleteEvent(eventId)
         return redirect("/admin/events")
 
-    return render_template("browseEventsAdmin.html", events = events, venues = venues, next_page_token = next_page_token)
+    return render_template("browseEventsAdmin.html", events = events)
 
 @crud.route('/admin/users', methods=['GET', 'POST'])
 def list():

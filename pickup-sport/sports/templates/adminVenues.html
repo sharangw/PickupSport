@@ -4,7 +4,7 @@
 <a style="font-size: 20px;" href="/admin/add">Add Venue</a>
 <br><br>
 
-{# [START form] #}
+    {# [START form] #}
     <h4>Remove Venue</h4>
     <form method="POST" enctype="multipart/form-data">
 
@@ -21,20 +21,32 @@
 
     <h3>Venues</h3>
 
-    {% for venue in venues %}
     <div class="media">
-      <ul href="/venues/{{venues.id}}">
-        <div class="media-body">
-          <h4>{{venue.name}}</h4>
-          <p>{{venue.description}}</p>
-          <p>ID: {{venue.id}}</p>
-        </div>
-      </ul>
-    </div>
-    {% else %}
-    <p>No venues found</p>
-    {% endfor %}
+      <table border="1">
+      {% if venues %}
+        <thead>
+        <th style="padding:20px">Name</th>
+        <th style="padding:20px">Description</th>
+        <th style="padding:20px">ID</th>
+       </thead>
+       {% else %}
+       {% endif %}
 
+       {% for venue in venues %}
+       <tbody>
+        <tr>
+           <td style="padding:20px">{{venue.name}}</a></td>
+            <td style="padding:20px">{{venue.description}}</td>
+            <td style="padding:20px">{{venue.id}}</td>
+        </tr>
+       </tbody>
+      {% else %}
+      <p>No venues found</p>
+      {% endfor %}
+      </table>
+    </div>
+
+    <br><br><br>
     {% if next_page_token %}
     <nav>
       <ul class="pager">

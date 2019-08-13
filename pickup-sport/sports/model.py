@@ -133,6 +133,7 @@ def showEventsByUser(userId):
         eventResult = Event.query.filter_by(id = r.eventId).first()
         events.append(eventResult)
     print("events: {}".format(events))
+    # eventsJoinVenue = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).filter(Event.id == events.id).all()
     # playerInfo = from_sql(result)
     # print("player info: ".format(playerInfo))
     if not events:
@@ -275,6 +276,12 @@ def showEventByVenue(venueId):
         print('{}'.format(e[0].time))
         print('{}'.format(e[0].length))
         print('{}'.format(e[0].description))
+    return events
+
+def showAllEventsAndVenue():
+
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
+
     return events
 
 def create(data):

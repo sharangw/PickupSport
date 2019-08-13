@@ -2,21 +2,37 @@
 
 {% block content %}
 
-<h3>Venues</h3>
+<h3>See All Venues</h3>
 
-{% for venue in venues %}
+<br>
+
+<h4>Venue Info</h4>
+
 <div class="media">
-  <ul href="/venues/{{venues.id}}">
-    <div class="media-body">
-      <h4>{{venue.name}}</h4>
-      <p>{{venue.description}}</p>
-      <p>ID: {{venue.id}}</p>
-    </div>
-  </ul>
+  <table border="1">
+      {% if venues %}
+      <thead>
+        <th style="padding:20px">Name</th>
+        <th style="padding:20px">Description</th>
+        <th style="padding:20px">ID</th>
+      </thead>
+      {% else %}
+      {% endif %}
+
+      {% for venue in venues %}
+      <tbody>
+        <tr>
+           <td style="padding:20px">{{venue.name}}</a></td>
+            <td style="padding:20px">{{venue.description}}</td>
+            <td style="padding:20px">{{venue.id}}</td>
+        </tr>
+      </tbody>
+      {% else %}
+      <p>No venues found</p>
+      {% endfor %}
+  </table>
 </div>
-{% else %}
-<p>No venues found</p>
-{% endfor %}
+
 
 {% if next_page_token %}
 <nav>

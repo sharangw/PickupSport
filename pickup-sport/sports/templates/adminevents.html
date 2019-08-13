@@ -8,7 +8,7 @@
       {% if events %}
       <thead>
         <th style="padding:10px">Organizer</th>
-        <th style="padding:10px">Time</th>
+        <th style="padding:10px">Date and Time</th>
         <th style="padding:10px">Length</th>
         <th style="padding:10px">Description</th>
         <th style="padding:10px">Venue</th>
@@ -17,7 +17,7 @@
       <tbody>
         <tr>
             <td style="padding:10px">{{event.organizer}}</td>
-            <td style="padding:10px">{{event.time}}</td>
+            <td style="padding:10px">{{event.time.strftime('%B %d at %I:%M %p')}}</td>
             <td style="padding:10px">{{event.length}} minutes</td>
             <td style="padding:10px">{{event.description}}</td>
             <td style="padding:10px">{{event.venueId}}</td>
