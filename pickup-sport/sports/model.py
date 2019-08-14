@@ -14,6 +14,7 @@
 
 from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
+import ast
 
 builtin_list = list
 
@@ -61,7 +62,7 @@ class Event(db.Model):
     venueId = db.Column(db.Integer)
 
     def __repr__(self):
-        return "<Event(name='%s', description=%s, players=%d)" % (self.organizer, self.description, self.players)
+        return "<Event(organizer='%s', description=%s, players=%d)" % (self.organizer, self.description, self.players)
 
 class Venue(db.Model):
     __tablename__ = 'venues'
@@ -136,6 +137,7 @@ def showEventsByUser(userId):
     # eventsJoinVenue = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).filter(Event.id == events.id).all()
     # playerInfo = from_sql(result)
     # print("player info: ".format(playerInfo))
+    # TODO: also get venue name by joining table
     if not events:
         return None
     return events
@@ -166,15 +168,6 @@ def read(id):
     if not result:
         return None
     return from_sql(result)
-
-def showevents(limit = 10, cursor = None):
-    query = (Event.query
-             .order_by(Event.name)
-             .limit(limit)
-             .offset(cursor))
-    events = builtin_list(map(from_sql, query.all()))
-    next_page = cursor + limit if len(events) == limit else None
-    return (events, next_page)
 
 # [END read]
 
@@ -280,7 +273,7 @@ def showEventByVenue(venueId):
 
 def showAllEventsAndVenue():
 
-    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
 
     return events
 
@@ -331,6 +324,12 @@ def _drop_database():
     with app.app_context():
         db.drop_all()
     print("All tables dropped")
+
+def eval_String(code):
+    parsed = ast.parse(code, mode='eval')
+    fixed = ast.fix_missing_locations(parsed)
+    compiled = compile(fixed, '<string>', '<datetime>', 'eval')
+    eval(compiled)
 
 if __name__ == '__main__':
     _create_database()

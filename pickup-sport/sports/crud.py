@@ -72,6 +72,12 @@ def showEvents(id):
     events = get_model().showAllEventsAndVenue()
     users = get_model().getUserById(id)
 
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    venues, next_page_token = get_model().showAllVenues(cursor=token)
+
     if request.method == 'POST':
         venueSelected = request.form.get("venues")
         print(type(venueSelected))
@@ -83,12 +89,12 @@ def showEvents(id):
             print("events by venue: {}".format(events))
 
         else:
-            return render_template("events.html", events = events, users = users)
+            return render_template("events.html", events = events, users = users, venues = venues, next_page_token = next_page_token)
 
-        return render_template("events.html", events=filteredEvents, users = users)
+        return render_template("events.html", events=filteredEvents, users = users, venues = venues, next_page_token = next_page_token)
 
 
-    return render_template("events.html", events = events, users = users)
+    return render_template("events.html", events = events, users = users, venues = venues, next_page_token = next_page_token)
 
 @crud.route('/<uid>/join/<eid>', methods=['GET', 'POST'])
 def joinEvent(uid, eid):
@@ -177,16 +183,23 @@ def showAllEventsAdmin():
 
     events = get_model().showAllEventsAndVenue()
 
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+    eventsToRemove, next_page_token = get_model().showAllEvents(cursor=token)
+
     if request.method == 'POST':
-        eventSelected = request.form.get("events")
+        eventSelected = request.form.get("eventsToRemove")
         print(type(eventSelected))
-        eventDict = ast.literal_eval(eventSelected)
-        eventId = eventDict['id']
-        print("event id: {}".format(eventId))
-        get_model().deleteEvent(eventId)
+        print("eventssss: {}".format(eventSelected))
+        if eventSelected is not None:
+            eventList = eventSelected.split(',')
+            eventId = eventList[4].strip().split(':')[1] # parse from "'id': <id>" to "<id>"
+            print("event id: {}".format(eventId))
+            get_model().deleteEvent(eventId)
         return redirect("/admin/events")
 
-    return render_template("browseEventsAdmin.html", events = events)
+    return render_template("browseEventsAdmin.html", events = events, eventsToRemove = eventsToRemove, next_page_token = next_page_token)
 
 @crud.route('/admin/users', methods=['GET', 'POST'])
 def list():
@@ -200,6 +213,7 @@ def list():
         userSelected = request.form.get("users")
         print(type(userSelected))
         userDict = ast.literal_eval(userSelected)
+        print("user dict: {}".format(userDict))
         userId = userDict['id']
         print("user id: {}".format(userId))
         get_model().deleteUser(userId)
