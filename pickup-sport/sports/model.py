@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask
+from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+import ast
 
 builtin_list = list
 
@@ -36,21 +36,6 @@ def from_sql(row):
     return data
 
 # [START model]
-# class Book(db.Model):
-#     __tablename__ = 'books'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(255))
-#     author = db.Column(db.String(255))
-#     publishedDate = db.Column(db.String(255))
-#     imageUrl = db.Column(db.String(255))
-#     description = db.Column(db.String(4096))
-#     createdBy = db.Column(db.String(255))
-#     createdById = db.Column(db.String(255))
-#
-#     def __repr__(self):
-#         return "<Book(title='%s', author=%s)" % (self.title, self.author)
-
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -77,7 +62,7 @@ class Event(db.Model):
     venueId = db.Column(db.Integer)
 
     def __repr__(self):
-        return "<Event(name='%s', description=%s, players=%d)" % (self.organizer, self.description, self.players)
+        return "<Event(organizer='%s', description=%s, players=%d)" % (self.organizer, self.description, self.players)
 
 class Venue(db.Model):
     __tablename__ = 'venues'
@@ -121,22 +106,6 @@ def insertuser():
                   "password": "goat",
                  "admin": "1"
               }
-    # venue3Dict = { "name" : "Tennis Zone North Austin",
-    #             "location" : "North Austin",
-    #              "description": "Outdoor Tennis stadium at North Austin",
-    #           }
-    # venue4Dict = { "name" : "Soccer Zone East Austin",
-    #             "location" : "West Campus",
-    #              "description": "Outdoor Soccer stadium at East Austin",
-    #           }
-    # venue5Dict = { "name" : "Basketball Field West Austin",
-    #             "location" : "West Campus",
-    #              "description": "Outdoor Basketball Field at West Austin",
-    #           }
-    # venue6Dict = { "name" : "Soccer Zone Downtown Austin",
-    #             "location" : "Downtown",
-    #              "description": "Indoor Tennis courts at Downtown",
-    #             }
 
     user = User(**userDict)
     db.session.add(user)
@@ -145,17 +114,6 @@ def insertuser():
     db.session.commit()
     return from_sql(user)
 
-
-# [START list]
-# def list(limit=10, cursor=None):
-#     cursor = int(cursor) if cursor else 0
-#     query = (Book.query
-#              .order_by(Book.title)
-#              .limit(limit)
-#              .offset(cursor))
-#     books  = builtin_list(map(from_sql, query.all()))
-#     next_page = cursor + limit if len() == limit else None
-#     return (books, next_page)
 def list(limit=10, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (User.query
@@ -168,14 +126,21 @@ def list(limit=10, cursor=None):
 # [END list]
 
 def showEventsByUser(userId):
-    print("hsldkfjsd")
-    result = Players.query.get(userId)
-    print("result: {}".format(result))
-    playerInfo = from_sql(result)
-    print("player info: ".format(playerInfo))
-    if not result:
+    playerResult = Players.query.filter_by(userId = userId).all()
+    print("result: {}".format(playerResult))
+    events = []
+    for r in playerResult:
+        print(r.eventId)
+        eventResult = Event.query.filter_by(id = r.eventId).first()
+        events.append(eventResult)
+    print("events: {}".format(events))
+    # eventsJoinVenue = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).filter(Event.id == events.id).all()
+    # playerInfo = from_sql(result)
+    # print("player info: ".format(playerInfo))
+    # TODO: also get venue name by joining table
+    if not events:
         return None
-    return from_sql(result)
+    return events
 
 
 def showAllEvents(limit = 10, cursor=None):
@@ -198,73 +163,145 @@ def showAllVenues(limit = 10, cursor=None):
     next_page = cursor + limit if len(venues) == limit else None
     return (venues, next_page)
 
-# [START read]
-# def read(id):
-#     result = Book.query.get(id)
-#     if not result:
-#         return None
-#     return from_sql(result)
 def read(id):
     result = User.query.get(id)
     if not result:
         return None
     return from_sql(result)
 
-def showevents(limit = 10, cursor = None):
-    query = (Event.query
-             .order_by(Event.name)
-             .limit(limit)
-             .offset(cursor))
-    events = builtin_list(map(from_sql, query.all()))
-    next_page = cursor + limit if len(events) == limit else None
-    return (events, next_page)
-
 # [END read]
 
+def getUserById(id):
+    user = User.query.filter_by(id=id).first()
+    print("user {}".format(user))
+    if not user:
+        return None
+    else:
+        return user
+
+def getEventById(id):
+    event = Event.query.filter_by(id=id).first()
+    print("time {}".format(event.time))
+    print("event {}".format(event))
+    if not event:
+        return None
+    else:
+        return event
+
+def getVenueById(id):
+    venue = Venue.query.filter_by(id=id).first()
+    print("venue {}".format(venue))
+    if not venue:
+        return None
+    else:
+        return venue
+
+def addUserToEvent(uid, eid):
+
+    dict = {'userId':uid, 'eventId':eid}
+    player = Players(userId=uid, eventId=eid)
+
+    event = Event.query.filter_by(id = eid).first()
+    print("players: {}".format(event.players))
+
+    if (event.players < event.capacity):
+
+        playerAlreadyAdded = 0 # check if same user has joined same event
+
+        playerEvents = Players.query.filter_by(userId = uid).with_entities(Players.eventId).all()
+
+        pEvents = [value for value, in playerEvents] # convert to list of ints with eventIds
+
+        if int(eid) in pEvents:
+            print("event already joined")
+            playerAlreadyAdded += 1
+        else:
+            print("event not joined")
+
+        if playerAlreadyAdded == 0:
+            event.players = event.players + 1
+            db.session.add(player)
+            db.session.commit()
+        else:
+            return -1
+
+        return 1
+    else: # players exceed capacity - event full
+        return 0
+
 def getuser(email,password):
-    # connection = db.engine.raw_connection()
-    # cursor = connection.cursor()
     userInfo = User.query.filter_by(email=email).first()
-    passwordInDatabase = userInfo.password
-    userId = userInfo.id
-    print("userid: {}".format(userId))
-    if password == passwordInDatabase: # entered password matches one in database
-        return userId
+    if (userInfo is not None):
+        passwordInDatabase = userInfo.password
+        userId = userInfo.id
+        print("userid: {}".format(userId))
+        if password == passwordInDatabase:  # entered password matches one in database
+            return userId
+        else:
+            return "0"
     else:
         return "0"
 
-# [START create]
-# def create(data):
-#     book = Book(**data)
-#     db.session.add(book)
-#     db.session.commit()
-#     return from_sql(book)
+def getadmin(email,password):
+    userInfo = User.query.filter_by(email=email).first()
+    if (userInfo is not None):
+        passwordInDatabase = userInfo.password
+        userId = userInfo.id
+        admin = userInfo.admin
+        print("is admin: {}".format(admin))
+        if admin == "1":
+            if password == passwordInDatabase:  # entered password matches one in database
+                return userId
+            else:
+                return "0"
+        else:
+            return "-1" # not an admin
+
+    else:
+        return "0"
+
+
+def showEventByVenue(venueId):
+
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description).filter(Venue.id == venueId).all()
+    for e in events:
+        print('{}'.format(e[0].organizer))
+        print('{}'.format(e[0].time))
+        print('{}'.format(e[0].length))
+        print('{}'.format(e[0].description))
+    return events
+
+def showAllEventsAndVenue():
+
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
+
+    return events
+
 def create(data):
     user = User(**data)
     db.session.add(user)
     db.session.commit()
     return from_sql(user)
+
+def createVenue(data):
+    venue = Venue(**data)
+    db.session.add(venue)
+    db.session.commit()
+    return from_sql(venue)
+
 # [END create]
 
-
-
-# [START update]
-# def update(data, id):
-#     book = Book.query.get(id)
-#     for k, v in data.items():
-#         setattr(book, k, v)
-#     db.session.commit()
-#     return from_sql(book)
-# [END update]
-
-
-# def delete(id):
-#     Book.query.filter_by(id=id).delete()
-#     db.session.commit()
-def delete(id):
-    User.query.filter_by(id=id).delete()
+def deleteEvent(eventId):
+    db.session.query(Event).filter(Event.id==eventId).delete()
     db.session.commit()
 
+def deleteUser(userId):
+    db.session.query(User).filter(User.id==userId).delete()
+    db.session.commit()
+
+def deleteVenue(venueId):
+    db.session.query(Venue).filter(Venue.id==venueId).delete()
+    db.session.commit()
 
 def _create_database():
     """
@@ -287,6 +324,12 @@ def _drop_database():
     with app.app_context():
         db.drop_all()
     print("All tables dropped")
+
+def eval_String(code):
+    parsed = ast.parse(code, mode='eval')
+    fixed = ast.fix_missing_locations(parsed)
+    compiled = compile(fixed, '<string>', '<datetime>', 'eval')
+    eval(compiled)
 
 if __name__ == '__main__':
     _create_database()

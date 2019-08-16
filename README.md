@@ -1,6 +1,10 @@
 # PickupSport
 
 ##### Contributors: Zhuo(Stanley) Wen and Sharang Wakankar
+
+	- Database model of the application 
+	- Utility functions to manipulate the database
+
+##### Google App Engine
 	
-	- This is part 1 of the Pickup Sport application. 
-	- It contains the database model of the application and the utility functions to manipulate the database.
+	- Hosted on https://my-apad-project.appspot.com/

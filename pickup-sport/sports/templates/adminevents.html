@@ -1,8 +1,7 @@
-{% extends "base.html" %}
+{% extends "adminBase.html" %}
 
 {% block content %}
-
-<h3>Events</h3>
+<h3>Manage Events and Users</h3>
 
 <div class="media">
   <table border="1">
@@ -14,42 +13,46 @@
         <th style="padding:10px">Description</th>
         <th style="padding:10px">Venue</th>
       </thead>
-      {% else %}
-      {% endif %}
-
       {% for event in events %}
       <tbody>
         <tr>
-           <td style="padding:10px"><a href="/{{users.id}}/join/{{event.id}}">{{event.organizer}}</a></td>
+            <td style="padding:10px">{{event.organizer}}</td>
             <td style="padding:10px">{{event.time.strftime('%B %d at %I:%M %p')}}</td>
             <td style="padding:10px">{{event.length}} minutes</td>
             <td style="padding:10px">{{event.description}}</td>
-            <td style="padding:10px">{{event.Venue.name}}</td>
+            <td style="padding:10px">{{event.venueId}}</td>
         </tr>
       </tbody>
       {% else %}
       <p>No events found</p>
       {% endfor %}
   </table>
+      {% else %}
+      <p>{{users.name}} has not joined any events!</p>
+      {% endif %}
 </div>
 
-<br><br>
+<br>
 
-{# [START form] #}
-<h4>Where do you want to play?</h4>
-<form method="POST" enctype="multipart/form-data">
+<a href="/{{users.id}}/events" class="btn btn-success btn-sm">
+  Join an event
+</a>
 
-    <select id="venues" name="venues">
-    <option value="" selected disabled hidden>Choose Venue here</option>
-    {% for venue in venues%}
-        <option value="{{venue}}">{{venue.name}}</option>
-    {% endfor %}
-    </select>
+<a href="/admin/events" class="btn btn-warning btn-sm">
+  Remove an event
+</a>
 
-    <button type="submit" class="btn btn-success">Search</button>
-</form>
+<a href="/admin/users" class="btn btn-warning btn-sm">
+  Remove a user
+</a>
 
-<a href="/{{users.id}}/events">Go Back to All Events</a>
-{# [END form] #}
+{% if next_page_token %}
+<nav>
+  <ul class="pager">
+    <li><a href="?page_token={{next_page_token}}">More</a></li>
+  </ul>
+</nav>
+{% endif %}
+
 
 {% endblock %}

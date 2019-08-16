@@ -15,96 +15,123 @@
 from sports import get_model
 from flask import Blueprint, redirect, render_template, request, url_for
 
-import cgi
+import ast
 
 crud = Blueprint('crud', __name__)
 
 
 # [START list]
+@crud.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        user = request.form.to_dict(flat=True)
+        userCreated = get_model().create(user)
+        if (userCreated):
+            print("yes")
+            return redirect("/")
+        else:
+            print("no")
+
+    return render_template("signup.html")
+
 @crud.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
         email = data['email']
         password = data['password']
-        print("here: {}, {}".format(email, password))
+        print("email: {}".format(email))
         userId = get_model().getuser(email,password)
         if userId == "0":
-            print("no no no")
+            print("wrong credentials")
+            return render_template("home.html", invalid = True)
         else:
-            return redirect("/{}/events".format(userId))
+            return redirect("/events/{}".format(userId))
 
+    return render_template("home.html", user={}, invalid = False)
 
-    return render_template("home.html", user={})
-
-@crud.route('/<id>/events')
-def showEvents(id):
+@crud.route('/events/<id>')
+def showEventsById(id):
     token = request.args.get('page_token', None)
     if token:
         token = token.encode('utf-8')
 
     events = get_model().showEventsByUser(id)
-    # events, next_page_token = get_model().showAllEvents(cursor=token)
-    # return redirect("/{}/events.html".format(id))
-    return render_template("events.html", events = events)
+
+    users = get_model().getUserById(id)
+    return render_template("myevents.html", events = events, users = users)
 
 @crud.route('/<id>')
 def view(id):
     user = get_model().read(id)
     return render_template("view.html", user=user)
-# def view(id):
-#     book = get_model().read(id)
-#     return render_template("view.html", book=book)
 
-@crud.route('/admin', methods=['GET', 'POST'])
-def admin():
-    if request.method == 'POST':
-        data = request.form.to_dict(flat=True)
-        email = data['email']
-        password = data['password']
-        print("here: {}, {}".format(email, password))
-        isUser = get_model().getuser(email,password)
-        if isUser == "1":
-            return redirect("events.html")
-        else:
-            print("no no no")
+@crud.route('/<id>/events', methods=['GET', 'POST'])
+def showEvents(id):
 
-    return render_template("admin.html", user={})
+    events = get_model().showAllEventsAndVenue()
+    users = get_model().getUserById(id)
 
-@crud.route('/admin/users')
-def list():
     token = request.args.get('page_token', None)
     if token:
         token = token.encode('utf-8')
 
-    users, next_page_token = get_model().list(cursor=token)
+    venues, next_page_token = get_model().showAllVenues(cursor=token)
 
-    return render_template(
-        "list.html",
-        users=users,
-        next_page_token=next_page_token)
-# [END list]
-# def list():
-#     token = request.args.get('page_token', None)
-#     if token:
-#         token = token.encode('utf-8')
-#
-#     books, next_page_token = get_model().list(cursor=token)
-#
-#     return render_template(
-#         "list.html",
-#         =,
-#         next_page_token=next_page_token)
+    if request.method == 'POST':
+        venueSelected = request.form.get("venues")
+        print(type(venueSelected))
+        if venueSelected is not None:
+            venueDict = ast.literal_eval(venueSelected)
+            venueId = venueDict['id']
+            print("venue selected: {}".format(venueId))
+            filteredEvents = get_model().showEventByVenue(venueId)
+            print("events by venue: {}".format(events))
+
+        else:
+            return render_template("events.html", events = events, users = users, venues = venues, next_page_token = next_page_token)
+
+        return render_template("events.html", events=filteredEvents, users = users, venues = venues, next_page_token = next_page_token)
+
+
+    return render_template("events.html", events = events, users = users, venues = venues, next_page_token = next_page_token)
+
+@crud.route('/<uid>/join/<eid>', methods=['GET', 'POST'])
+def joinEvent(uid, eid):
+
+    events = get_model().getEventById(eid)
+    users = get_model().getUserById(uid)
+
+    if request.method == 'POST':
+        userAdded = get_model().addUserToEvent(uid, eid)
+        if userAdded == 0:
+            print("User cannot be added to this event")
+            return render_template("join.html", events = events, users = users, eventFull = True, playerAdded = False)
+        elif userAdded == -1:
+            print("Player already added")
+            return render_template("join.html", events = events, users = users, playerAdded=True, eventFull = False)
+        else:
+            return redirect("/events/{}".format(uid))
+
+    return render_template("join.html", events = events, users = users, eventFull = False, playerAdded = False)
+
+@crud.route('/events')
+def showAllEvents():
+
+    events = get_model().showAllEventsAndVenue()
+    print(type(events))
+    print("events: {}".format(events[0]))
+
+    return render_template("browseEvents.html", events = events)
 
 @crud.route('/venues')
-def showVenues():
+def showAllVenues():
     token = request.args.get('page_token', None)
     if token:
         token = token.encode('utf-8')
 
     venues, next_page_token = get_model().showAllVenues(cursor=token)
     return render_template("venues.html", venues = venues, next_page_token = next_page_token)
-
 
 # [START add]
 @crud.route('/add', methods=['GET', 'POST'])
@@ -117,36 +144,115 @@ def add():
         return redirect(url_for('.view', id=user['id']))
 
     return render_template("form.html", action="Add", user={})
-# def add():
-#     if request.method == 'POST':
-#         data = request.form.to_dict(flat=True)
-#
-#         book = get_model().create(data)
-#
-#         return redirect(url_for('.view', id=book['id']))
-#
-#     return render_template("form.html", action="Add", book={})
-# [END add]
 
 
-@crud.route('/<id>/edit', methods=['GET', 'POST'])
-# def edit(id):
-#     book = get_model().read(id)
-#
-#     if request.method == 'POST':
-#         data = request.form.to_dict(flat=True)
-#
-#         book = get_model().update(data, id)
-#
-#         return redirect(url_for('.view', id=book['id']))
-#
-#     return render_template("form.html", action="Edit", book=book)
+### Admin functionalities: ####
 
+@crud.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        email = data['email']
+        password = data['password']
+        print("email: {}".format(email))
+        userId = get_model().getadmin(email, password)
+        if userId == "0":
+            print("wrong credentials")
+            return render_template("admin.html", invalid = True, notAdmin = False)
+        elif userId == "-1":
+            print("not an admin")
+            return render_template("admin.html", notAdmin = True, invalid = False)
+        else:
+            return redirect("/admin/events/{}".format(userId))
 
-@crud.route('/<id>/delete')
-# def delete(id):
-#     get_model().delete(id)
-#     return redirect(url_for('.list'))
-def delete(id):
-    get_model().delete(id)
-    return redirect(url_for('.list'))
+    return render_template("admin.html", user={}, invalid = False, notAdmin = False)
+
+@crud.route('/admin/events/<id>')
+def showEventsByIdAdmin(id):
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    events = get_model().showEventsByUser(id)
+
+    users = get_model().getUserById(id)
+    return render_template("adminevents.html", events = events, users = users)
+
+@crud.route('/admin/events', methods=['GET', 'POST'])
+def showAllEventsAdmin():
+
+    events = get_model().showAllEventsAndVenue()
+
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+    eventsToRemove, next_page_token = get_model().showAllEvents(cursor=token)
+
+    if request.method == 'POST':
+        eventSelected = request.form.get("eventsToRemove")
+        print(type(eventSelected))
+        print("eventssss: {}".format(eventSelected))
+        if eventSelected is not None:
+            eventList = eventSelected.split(',')
+            eventId = eventList[4].strip().split(':')[1] # parse from "'id': <id>" to "<id>"
+            print("event id: {}".format(eventId))
+            get_model().deleteEvent(eventId)
+        return redirect("/admin/events")
+
+    return render_template("browseEventsAdmin.html", events = events, eventsToRemove = eventsToRemove, next_page_token = next_page_token)
+
+@crud.route('/admin/users', methods=['GET', 'POST'])
+def list():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    users, next_page_token = get_model().list(cursor=token)
+
+    if request.method == 'POST':
+        userSelected = request.form.get("users")
+        print(type(userSelected))
+        userDict = ast.literal_eval(userSelected)
+        print("user dict: {}".format(userDict))
+        userId = userDict['id']
+        print("user id: {}".format(userId))
+        get_model().deleteUser(userId)
+
+        return redirect("/admin/users")
+
+    return render_template(
+        "adminUsers.html",
+        users=users,
+        next_page_token=next_page_token)
+
+@crud.route('/admin/venues', methods=['GET', 'POST'])
+def showAllVenuesAdmin():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    venues, next_page_token = get_model().showAllVenues(cursor=token)
+
+    if request.method == 'POST':
+        venueSelected = request.form.get("venues")
+        print(type(venueSelected))
+        venueDict = ast.literal_eval(venueSelected)
+        venueId = venueDict['id']
+        print("venue id: {}".format(venueId))
+        get_model().deleteVenue(venueId)
+        return redirect("/admin/venues")
+
+    return render_template("adminVenues.html", venues = venues, next_page_token = next_page_token)
+
+@crud.route('/admin/add', methods=['GET','POST'])
+def addVenue():
+    if request.method == 'POST':
+        venue = request.form.to_dict(flat=True)
+        venueCreated = get_model().createVenue(venue)
+        if (venueCreated):
+            print("yes")
+            return redirect("/admin/venues")
+        else:
+            print("no")
+
+    return render_template("adminAddVenue.html")
