@@ -30,5 +30,5 @@ beta_settings:
     #   "project:region:cloudsql-instance"
     # You must also update the values in config.py.
     #
-   cloud_sql_instances: "my-apad-project:us-central1:myinstance-apad"
+   cloud_sql_instances: "stanleyproject1:us-central1:apadproject"
 #[END cloudsql_settings]

@@ -32,18 +32,18 @@ DATA_BACKEND = 'cloudsql'
 
 # Google Cloud Project ID. This can be found on the 'Overview' page at
 # https://console.developers.google.com
-PROJECT_ID = 'my-apad-project'
+PROJECT_ID = 'stanleyproject1'
 
 # CloudSQL & SQLAlchemy configuration
 # Replace the following values the respective values of your Cloud SQL
 # instance.
 CLOUDSQL_USER = 'root'
-CLOUDSQL_PASSWORD = 'pickupsport'
+CLOUDSQL_PASSWORD = 'cloudsqlpw123'
 CLOUDSQL_DATABASE = 'sports'
 # Set this value to the Cloud SQL connection name, e.g.
 #   "project:region:cloudsql-instance".
 # You must also update the value in app.yaml.
-CLOUDSQL_CONNECTION_NAME = 'my-apad-project:us-central1:myinstance-apad'
+CLOUDSQL_CONNECTION_NAME = 'stanleyproject1:us-central1:apadproject'
 
 # The CloudSQL proxy is used locally to connect to the cloudsql instance.
 # To start the proxy, use:
@@ -55,7 +55,7 @@ CLOUDSQL_CONNECTION_NAME = 'my-apad-project:us-central1:myinstance-apad'
 
 # Alternatively, you could use a local MySQL instance for testing.
 LOCAL_SQLALCHEMY_DATABASE_URI = (
-    'mysql+pymysql://{user}:{password}@127.0.0.1:3306/{database}').format(
+    'mysql+pymysql://{user}:{password}@127.0.0.1/{database}').format(
         user=CLOUDSQL_USER, password=CLOUDSQL_PASSWORD,
         database=CLOUDSQL_DATABASE)
 
