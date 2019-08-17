@@ -14,7 +14,7 @@
 
 from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
-import ast
+import json
 
 builtin_list = list
 
@@ -49,6 +49,10 @@ class User(db.Model):
     def __repr__(self):
         return "<User(name='%s', email=%s)" % (self.name, self.email)
 
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+
 class Event(db.Model):
     __tablename__ = 'events'
 
@@ -64,6 +68,9 @@ class Event(db.Model):
     def __repr__(self):
         return "<Event(organizer='%s', description=%s, players=%d)" % (self.organizer, self.description, self.players)
 
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
 class Venue(db.Model):
     __tablename__ = 'venues'
 
@@ -71,6 +78,9 @@ class Venue(db.Model):
     name = db.Column(db.String(255))
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
 class Players(db.Model):
@@ -161,6 +171,7 @@ def showAllVenues(limit = 10, cursor=None):
              .offset(cursor))
     venues = builtin_list(map(from_sql, query.all()))
     next_page = cursor + limit if len(venues) == limit else None
+    print(type(venues))
     return (venues, next_page)
 
 def read(id):
@@ -174,6 +185,16 @@ def read(id):
 def getUserById(id):
     user = User.query.filter_by(id=id).first()
     print("user {}".format(user))
+    if not user:
+        return None
+    else:
+        return user
+
+def getUserByIdApp(id):
+    query = (User.query.filter_by(id=id).order_by(User.name))
+    user = builtin_list(map(from_sql, query.all()))
+    print(type(user))
+    print(user)
     if not user:
         return None
     else:
@@ -263,7 +284,7 @@ def getadmin(email,password):
 
 def showEventByVenue(venueId):
 
-    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.organizer, Event.time, Event.length, Event.description).filter(Venue.id == venueId).all()
+    events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description).filter(Venue.id == venueId).all()
     for e in events:
         print('{}'.format(e[0].organizer))
         print('{}'.format(e[0].time))
@@ -324,12 +345,6 @@ def _drop_database():
     with app.app_context():
         db.drop_all()
     print("All tables dropped")
-
-def eval_String(code):
-    parsed = ast.parse(code, mode='eval')
-    fixed = ast.fix_missing_locations(parsed)
-    compiled = compile(fixed, '<string>', '<datetime>', 'eval')
-    eval(compiled)
 
 if __name__ == '__main__':
     _create_database()

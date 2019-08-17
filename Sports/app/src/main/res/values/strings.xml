@@ -2,7 +2,7 @@
     <string name="app_name">Pickup Sports</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
-    <string name="button_next">Next</string>
+    <string name="button_login">Log In</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_admin">Log in as Admin</string>
     <string name="brosweusers">Manage users</string>

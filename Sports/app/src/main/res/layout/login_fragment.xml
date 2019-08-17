@@ -32,7 +32,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:hint="@string/hint_username">
+                android:hint="@string/hint_username"
+                app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/username_edit_text"
@@ -64,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:text="@string/button_next"
+                    android:text="@string/button_login"
                     android:layout_marginEnd="37dp"/>
 
             <com.google.android.material.button.MaterialButton

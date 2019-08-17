@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from sports import get_model
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, jsonify
 
-import ast
+import ast, json
 
 crud = Blueprint('crud', __name__)
 
@@ -49,6 +49,26 @@ def login():
             return redirect("/events/{}".format(userId))
 
     return render_template("home.html", user={}, invalid = False)
+
+
+@crud.route('/app/login', methods=['GET', 'POST'])
+def loginApp():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        email = data['email']
+        password = data['password']
+        print("email: {}".format(email))
+        userId = get_model().getuser(email, password)
+
+        if userId == "0":
+            print("wrong credentials")
+            users = "Invalid"
+            return jsonify(users)
+        else:
+            users = get_model().getUserByIdApp(userId)
+            userJson = jsonify(users)
+            return userJson
+
 
 @crud.route('/events/<id>')
 def showEventsById(id):
@@ -124,6 +144,17 @@ def showAllEvents():
 
     return render_template("browseEvents.html", events = events)
 
+@crud.route('/app/events')
+def showAllEventsApp():
+
+    events = get_model().showAllEventsAndVenue()
+    print(type(events))
+    print("events: {}".format(events[0]))
+    for e in events:
+        e.toJson()
+
+    return json.dumps(events)
+
 @crud.route('/venues')
 def showAllVenues():
     token = request.args.get('page_token', None)
@@ -132,6 +163,18 @@ def showAllVenues():
 
     venues, next_page_token = get_model().showAllVenues(cursor=token)
     return render_template("venues.html", venues = venues, next_page_token = next_page_token)
+
+@crud.route('/app/venues')
+def showAllVenuesApp():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    venues, next_page_token = get_model().showAllVenues(cursor=token)
+    print(type(venues))
+    print(venues)
+    venuesJson = jsonify(venues)
+    return venuesJson
 
 # [START add]
 @crud.route('/add', methods=['GET', 'POST'])
@@ -164,6 +207,29 @@ def admin():
             return render_template("admin.html", notAdmin = True, invalid = False)
         else:
             return redirect("/admin/events/{}".format(userId))
+
+    return render_template("admin.html", user={}, invalid = False, notAdmin = False)
+
+@crud.route('/app/admin', methods=['GET', 'POST'])
+def adminApp():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        email = data['email']
+        password = data['password']
+        print("email: {}".format(email))
+        userId = get_model().getadmin(email, password)
+        if userId == "0":
+            users = "Invalid"
+            userJson = jsonify(users)
+            return userJson
+        elif userId == "-1":
+            users = "Not admin"
+            userJson = jsonify(users)
+            return userJson
+        else:
+            users = get_model().getUserByIdApp(userId)
+            userJson = jsonify(users)
+            return userJson
 
     return render_template("admin.html", user={}, invalid = False, notAdmin = False)
 
