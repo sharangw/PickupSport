@@ -8,6 +8,7 @@
     <string name="brosweusers">Manage users</string>
     <string name="manageevents">Manage events</string>
     <string name="managevenues">Manage venues</string>
-    <string name="error_password">Password must contain at least 8 characters.</string>
+    <string name="error_invalid">Username or password is incorrect</string>
+    <string name="error_admin">You are not an admin!</string>
 
 </resources>

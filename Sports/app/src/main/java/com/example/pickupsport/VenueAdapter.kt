@@ -8,15 +8,11 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import java.util.ArrayList
 
-/**
- * Orignial author: Parsania Hardik on 03-Jan-17.
- * Modified by Ramesh Yerraballi on 8/12/19
- */
-class CustomAdapter(private val context: Context, private val usersModelArrayList: ArrayList<User_Model>) :
+class VenueAdapter(private val context: Context, private val venuesModelArrayList: ArrayList<Venue_Model>) :
     BaseAdapter() {
 
     override fun getViewTypeCount(): Int {
-        return count
+        return 1
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -25,11 +21,11 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
     }
 
     override fun getCount(): Int {
-        return usersModelArrayList.size
+        return venuesModelArrayList.size
     }
 
     override fun getItem(position: Int): Any {
-        return usersModelArrayList[position]
+        return venuesModelArrayList[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -46,8 +42,9 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = inflater.inflate(R.layout.user, null, true)
 
-            holder.name = convertView!!.findViewById(R.id.name) as TextView
-            holder.phone = convertView.findViewById(R.id.email) as TextView
+            holder.vname = convertView!!.findViewById(R.id.name) as TextView
+            holder.vlocation = convertView.findViewById(R.id.email) as TextView
+//            holder.time = convertView.findViewById(R.id.time) as TextView
 
             convertView.tag = holder
         } else {
@@ -55,16 +52,18 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
             holder = convertView.tag as ViewHolder
         }
 
-        holder.name!!.text = "Name: " + usersModelArrayList[position].getNames()
-        holder.phone!!.text = "Phone: " + usersModelArrayList[position].getPhones()
+        holder.vname!!.text = "Name: " + venuesModelArrayList[position].getName()
+        holder.vlocation!!.text = "Location: " + venuesModelArrayList[position].getLocation()
+//        holder.time!!.text = "Email: " + eventsModelArrayList[position].getTimes()
 
         return convertView
     }
 
     private inner class ViewHolder {
 
-        var name: TextView? = null
-        var phone: TextView? = null
+        var vname: TextView? = null
+        var vdescription: TextView? = null
+        var vlocation: TextView? = null
     }
 
 }
