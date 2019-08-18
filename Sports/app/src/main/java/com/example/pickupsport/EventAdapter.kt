@@ -8,11 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import java.util.ArrayList
 
-/**
- * Orignial author: Parsania Hardik on 03-Jan-17.
- * Modified by Ramesh Yerraballi on 8/12/19
- */
-class CustomAdapter(private val context: Context, private val usersModelArrayList: ArrayList<User_Model>) :
+class EventAdapter(private val context: Context, private val eventsModelArrayList: ArrayList<Event_Model>) :
     BaseAdapter() {
 
     override fun getViewTypeCount(): Int {
@@ -25,11 +21,11 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
     }
 
     override fun getCount(): Int {
-        return usersModelArrayList.size
+        return eventsModelArrayList.size
     }
 
     override fun getItem(position: Int): Any {
-        return usersModelArrayList[position]
+        return eventsModelArrayList[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -46,8 +42,9 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = inflater.inflate(R.layout.user, null, true)
 
-            holder.name = convertView!!.findViewById(R.id.name) as TextView
-            holder.phone = convertView.findViewById(R.id.email) as TextView
+            holder.organizer = convertView!!.findViewById(R.id.name) as TextView
+            holder.description = convertView.findViewById(R.id.email) as TextView
+//            holder.time = convertView.findViewById(R.id.time) as TextView
 
             convertView.tag = holder
         } else {
@@ -55,16 +52,18 @@ class CustomAdapter(private val context: Context, private val usersModelArrayLis
             holder = convertView.tag as ViewHolder
         }
 
-        holder.name!!.text = "Name: " + usersModelArrayList[position].getNames()
-        holder.phone!!.text = "Phone: " + usersModelArrayList[position].getPhones()
+        holder.organizer!!.text = "Name: " + eventsModelArrayList[position].getOrganizers()
+        holder.description!!.text = "Desc: " + eventsModelArrayList[position].getDescriptions()
+//        holder.time!!.text = "Email: " + eventsModelArrayList[position].getTimes()
 
         return convertView
     }
 
     private inner class ViewHolder {
 
-        var name: TextView? = null
-        var phone: TextView? = null
+        var organizer: TextView? = null
+        var description: TextView? = null
+        var time: TextView? = null
     }
 
 }

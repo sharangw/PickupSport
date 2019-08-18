@@ -1,9 +1,6 @@
 package com.example.pickupsport
 
-import okhttp3.FormBody
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 
 class OkHttpRequest(client: OkHttpClient) {
 
@@ -11,6 +8,20 @@ class OkHttpRequest(client: OkHttpClient) {
 
     init {
         this.client = client
+    }
+
+    fun fetchGet(url: String, callback: Callback) : Call {
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+//        val response = client.newCall(request).execute()
+//        val bodystr = response.body()?.string()
+//        return bodystr
+        val call = client.newCall(request)
+        call.enqueue(callback)
+        return call
+
     }
 
     fun fetchPost(url: String, parameters: HashMap<String, String>) : String? {
@@ -30,7 +41,6 @@ class OkHttpRequest(client: OkHttpClient) {
             .url(url)
             .post(formBody)
             .build()
-
 
         val response = client.newCall(request).execute()
         val bodystr = response?.body()?.string()

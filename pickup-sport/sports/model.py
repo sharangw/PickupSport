@@ -124,7 +124,7 @@ def insertuser():
     db.session.commit()
     return from_sql(user)
 
-def list(limit=10, cursor=None):
+def showAllUsers(limit=10, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (User.query
              .order_by(User.name)
@@ -152,6 +152,24 @@ def showEventsByUser(userId):
         return None
     return events
 
+def showEventsByUserApp(userId):
+    playerResult = Players.query.filter_by(userId = userId).all()
+    print("result: {}".format(playerResult))
+    eventList = []
+    for r in playerResult:
+        print(r.eventId)
+        eventResult = Event.query.filter_by(id = r.eventId).first()
+        eventList.append(eventResult)
+    print("events: {}".format(eventList))
+
+    query = (db.session.query(Event, Players)
+             .join(Event, Players.eventId == Event.id, Players.userId == userId)
+             .order_by(Event.organizer)
+            )
+    events = builtin_list(map(from_sql, query.all()))
+    if not events:
+        return None
+    return events
 
 def showAllEvents(limit = 10, cursor=None):
     cursor = int(cursor) if cursor else 0
@@ -265,6 +283,7 @@ def getuser(email,password):
 
 def getadmin(email,password):
     userInfo = User.query.filter_by(email=email).first()
+    print(userInfo)
     if (userInfo is not None):
         passwordInDatabase = userInfo.password
         userId = userInfo.id
@@ -295,8 +314,13 @@ def showEventByVenue(venueId):
 def showAllEventsAndVenue():
 
     events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
-
     return events
+
+# def showAllEventsAndVenueApp():
+#
+#     query = (Event.query.join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).order_by(Event.name))
+#     events = builtin_list(map(from_sql, query.all()))
+#     return events
 
 def create(data):
     user = User(**data)

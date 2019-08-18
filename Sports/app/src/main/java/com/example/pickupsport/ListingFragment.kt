@@ -46,7 +46,7 @@ class ListingFragment : Fragment() {
             (activity as NavigationHost).navigateTo(LoginFragment(), false)
             })
 
-        userlist = view.userlist
+        userlist = view.menulist
 //        userModelArrayList = getInfo(response)  // uncomment this and comment the next line if response is above
         response = loadJSONFromAssets();
         //We could use the builtin ArrayAdapter if we were dealing with just strings

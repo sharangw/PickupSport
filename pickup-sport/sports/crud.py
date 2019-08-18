@@ -50,26 +50,6 @@ def login():
 
     return render_template("home.html", user={}, invalid = False)
 
-
-@crud.route('/app/login', methods=['GET', 'POST'])
-def loginApp():
-    if request.method == 'POST':
-        data = request.form.to_dict(flat=True)
-        email = data['email']
-        password = data['password']
-        print("email: {}".format(email))
-        userId = get_model().getuser(email, password)
-
-        if userId == "0":
-            print("wrong credentials")
-            users = "Invalid"
-            return jsonify(users)
-        else:
-            users = get_model().getUserByIdApp(userId)
-            userJson = jsonify(users)
-            return userJson
-
-
 @crud.route('/events/<id>')
 def showEventsById(id):
     token = request.args.get('page_token', None)
@@ -144,17 +124,6 @@ def showAllEvents():
 
     return render_template("browseEvents.html", events = events)
 
-@crud.route('/app/events')
-def showAllEventsApp():
-
-    events = get_model().showAllEventsAndVenue()
-    print(type(events))
-    print("events: {}".format(events[0]))
-    for e in events:
-        e.toJson()
-
-    return json.dumps(events)
-
 @crud.route('/venues')
 def showAllVenues():
     token = request.args.get('page_token', None)
@@ -163,18 +132,6 @@ def showAllVenues():
 
     venues, next_page_token = get_model().showAllVenues(cursor=token)
     return render_template("venues.html", venues = venues, next_page_token = next_page_token)
-
-@crud.route('/app/venues')
-def showAllVenuesApp():
-    token = request.args.get('page_token', None)
-    if token:
-        token = token.encode('utf-8')
-
-    venues, next_page_token = get_model().showAllVenues(cursor=token)
-    print(type(venues))
-    print(venues)
-    venuesJson = jsonify(venues)
-    return venuesJson
 
 # [START add]
 @crud.route('/add', methods=['GET', 'POST'])
@@ -207,29 +164,6 @@ def admin():
             return render_template("admin.html", notAdmin = True, invalid = False)
         else:
             return redirect("/admin/events/{}".format(userId))
-
-    return render_template("admin.html", user={}, invalid = False, notAdmin = False)
-
-@crud.route('/app/admin', methods=['GET', 'POST'])
-def adminApp():
-    if request.method == 'POST':
-        data = request.form.to_dict(flat=True)
-        email = data['email']
-        password = data['password']
-        print("email: {}".format(email))
-        userId = get_model().getadmin(email, password)
-        if userId == "0":
-            users = "Invalid"
-            userJson = jsonify(users)
-            return userJson
-        elif userId == "-1":
-            users = "Not admin"
-            userJson = jsonify(users)
-            return userJson
-        else:
-            users = get_model().getUserByIdApp(userId)
-            userJson = jsonify(users)
-            return userJson
 
     return render_template("admin.html", user={}, invalid = False, notAdmin = False)
 
@@ -273,7 +207,7 @@ def list():
     if token:
         token = token.encode('utf-8')
 
-    users, next_page_token = get_model().list(cursor=token)
+    users, next_page_token = get_model().showAllUsers(cursor=token)
 
     if request.method == 'POST':
         userSelected = request.form.get("users")
@@ -322,3 +256,114 @@ def addVenue():
             print("no")
 
     return render_template("adminAddVenue.html")
+
+
+### Endpoints for Android app:
+
+@crud.route('/app/login', methods=['GET', 'POST'])
+def loginApp():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        print(dict)
+        email = data['email']
+        password = data['password']
+        print("email: {}".format(email))
+        userId = get_model().getuser(email, password)
+
+        if userId == "0":
+            print("wrong credentials")
+            return jsonify(None)
+        else:
+            users = get_model().getUserByIdApp(userId)
+            userJson = jsonify(users)
+            return userJson
+
+
+@crud.route('/app/admin', methods=['GET', 'POST'])
+def adminApp():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        email = data['email']
+        password = data['password']
+        print("email: {}".format(email))
+        userId = get_model().getadmin(email, password)
+        print(userId)
+        if userId == "0":
+            error = "Invalid"
+            return error
+        elif userId == "-1":
+            error = "Not admin"
+            return error
+        else:
+            users = get_model().getUserByIdApp(userId)
+            userJson = jsonify(users)
+            return userJson
+
+@crud.route('/app/events')
+def showAllEventsApp():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    events, next_page_token = get_model().showAllEvents(cursor=token)
+    print(type(events))
+    print(events)
+    if events is not None:
+        eventsJson = jsonify(events)
+        return eventsJson
+    else:
+        return jsonify(None)
+
+
+@crud.route('/app/venues')
+def showAllVenuesApp():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    venues, next_page_token = get_model().showAllVenues(cursor=token)
+    print(type(venues))
+    print(venues)
+    if venues is not None:
+        venuesJson = jsonify(venues)
+        return venuesJson
+    else:
+        return jsonify(None)
+
+@crud.route('/app/users', methods=['GET', 'POST'])
+def showAllUsersApp():
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    users, next_page_token = get_model().showAllUsers(cursor=token)
+
+    print(type(users))
+    print(users)
+    if users is not None:
+        usersJson = jsonify(users)
+        return usersJson
+    else:
+        return jsonify(None)
+
+@crud.route('/app/events/<id>', methods=['GET', 'POST'])
+def showEventsByIdApp(id):
+    token = request.args.get('page_token', None)
+    if token:
+        token = token.encode('utf-8')
+
+    events = get_model().showEventsByUserApp(id)
+
+    print(type(events))
+    print(events)
+    if events is not None:
+        eventsJson = jsonify(events)
+        return eventsJson
+    else:
+        return jsonify(None)
+
+
+
+
+
+

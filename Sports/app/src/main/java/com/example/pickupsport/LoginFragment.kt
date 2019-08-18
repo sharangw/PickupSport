@@ -14,15 +14,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.admin_home.*
 import kotlinx.android.synthetic.main.listing_fragment.*
 import kotlinx.android.synthetic.main.listing_fragment.view.*
-import kotlinx.android.synthetic.main.listing_fragment.view.userlist
+import kotlinx.android.synthetic.main.listing_fragment.view.menulist
 import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.login_fragment.view.*
 import kotlinx.android.synthetic.main.login_fragment.view.username_edit_text
 import org.jetbrains.anko.activityUiThread
 import org.jetbrains.anko.doAsync
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.IOException
+import kotlinx.android.synthetic.main.listing_fragment.view.*
+import org.jetbrains.anko.uiThread
 
 /**
  * Fragment representing the login screen for Shrine.
@@ -35,16 +34,43 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.login_fragment, container, false)
 
-        //val view =  inflater.inflate(R.layout.listing_fragment, container, false)
-        view.next_button.setOnClickListener({
-            // Navigate to the next Fragment.
-            (activity as NavigationHost).navigateTo(ListingFragment(), false)
-        })
+        view.admin_button.setOnClickListener{
+            doAsync {
+                Log.d("DEBUG", "button clicked");
 
-        view.admin_button.setOnClickListener({
-            // Navigate to the next Fragment.
-            (activity as NavigationHost).navigateTo(admin_home(), false)
-        })
+                println("email: " + username_edit_text.text.toString())
+                println("password: " + password_edit_text.text.toString())
+
+                val url = "https://my-apad-project.appspot.com/app/admin"
+                val map: HashMap<String, String> = hashMapOf("email" to username_edit_text.text.toString(), "password" to password_edit_text.text.toString())
+                val invalidMap: HashMap<String, String> = hashMapOf("email" to "", "password" to "")
+                val notAdminMap: HashMap<String, String> = hashMapOf("email" to "lebron@lakers.com", "password" to "cav")
+
+                val client = OkHttpClient()
+                val req = OkHttpRequest(client)
+                val resp = req.fetchPost(url, map)
+                val invalidResp = req.fetchPost(url, invalidMap)
+                val notAdminResp = req.fetchPost(url, notAdminMap)
+                println("resp: " + resp)
+                println(resp?.javaClass?.name)
+
+
+                uiThread {
+                    if (resp.equals(notAdminResp)) {
+                        println("Not admin")
+                        password_text_input.error = getString(R.string.error_admin)
+                    } else if (resp.equals(invalidResp)) {
+                        println("Wrong credentials")
+                        password_text_input.error = getString(R.string.error_invalid)
+                    } else {
+                        password_text_input.error = null
+                        // Navigate to the next Fragment.
+                        (activity as NavigationHost).navigateTo(admin_home(), false)
+                    }
+                }
+
+            }
+        }
 
         return view
     }
@@ -60,25 +86,42 @@ class LoginFragment : Fragment() {
 
                 val url = "https://my-apad-project.appspot.com/app/login"
                 val map: HashMap<String, String> = hashMapOf("email" to username_edit_text.text.toString(), "password" to password_edit_text.text.toString())
+                val invalidMap: HashMap<String, String> = hashMapOf("email" to "", "password" to "")
 
                 val client = OkHttpClient()
                 val req = OkHttpRequest(client)
                 val resp = req.fetchPost(url, map)
-//                val filteredResp = resp?.replace("\"","")
+                val invalidResp = req.fetchPost(url, invalidMap)
                 println("resp: " + resp)
-//                val jsonResp = JSONObject(resp)
                 println(resp?.javaClass?.name)
 
-                if (resp.equals( "Invalid")) {
-                    println("Wrong credentials")
-                } else {
-                    println("Logged in")
+
+                uiThread {
+                    if (!resp.equals(invalidResp)) {
+                        println("Logged in")
+                        password_text_input.error = null
+                        // Navigate to the next Fragment.
+                        (activity as NavigationHost).navigateTo(user_home(), false)
+                    } else {
+                        println("Wrong credentials")
+                        password_text_input.error = getString(R.string.error_invalid)
+                    }
                 }
 
-//                val user = JSONObject(resp)
-//                val venue = jsonarray.getJSONObject(i)
             }
         }
+
+        view.username_edit_text.setOnKeyListener({ _, _, _ ->
+            // Clear the error once user tries to change username
+            password_text_input.error = null
+            false
+        })
+
+        view.password_edit_text.setOnKeyListener({ _, _, _ ->
+            // Clear the error once user tries to change password
+            password_text_input.error = null
+            false
+        })
     }
 
     private fun fetchInfo() {
