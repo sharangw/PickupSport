@@ -40,11 +40,11 @@ class EventAdapter(private val context: Context, private val eventsModelArrayLis
             holder = ViewHolder()
             val inflater = context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            convertView = inflater.inflate(R.layout.user, null, true)
+            convertView = inflater.inflate(R.layout.event, null, true)
 
             holder.organizer = convertView!!.findViewById(R.id.name) as TextView
-            holder.description = convertView.findViewById(R.id.email) as TextView
-//            holder.time = convertView.findViewById(R.id.time) as TextView
+            holder.description = convertView.findViewById(R.id.description) as TextView
+            holder.time = convertView.findViewById(R.id.time) as TextView
 
             convertView.tag = holder
         } else {
@@ -53,8 +53,8 @@ class EventAdapter(private val context: Context, private val eventsModelArrayLis
         }
 
         holder.organizer!!.text = "Name: " + eventsModelArrayList[position].getOrganizers()
-        holder.description!!.text = "Desc: " + eventsModelArrayList[position].getDescriptions()
-//        holder.time!!.text = "Email: " + eventsModelArrayList[position].getTimes()
+        holder.description!!.text = "Details: " + eventsModelArrayList[position].getDescriptions()
+        holder.time!!.text = "Time: " + eventsModelArrayList[position].getTimes()
 
         return convertView
     }

@@ -106,20 +106,4 @@ class admin_user : Fragment(){
         return userModelArrayList
     }
 
-    fun loadJSONFromAssets(): String? {
-        var json: String? = null
-        try {
-            val inputStream = this.context?.assets?.open("users.json")
-            val size = inputStream?.available()
-            val buffer = ByteArray(size!!)
-            inputStream.read(buffer)
-            inputStream.close()
-
-            json = String(buffer, Charsets.UTF_8)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-        return json
-    }
 }

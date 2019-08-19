@@ -260,11 +260,21 @@ def addVenue():
 
 ### Endpoints for Android app:
 
+@crud.route('/app/signup', methods=['GET', 'POST'])
+def signupApp():
+    if request.method == 'POST':
+        user = request.form.to_dict(flat=True)
+        print(user)
+        userCreated = get_model().create(user)
+        if (userCreated):
+            return "True"
+        else:
+            return "False"
+
 @crud.route('/app/login', methods=['GET', 'POST'])
 def loginApp():
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
-        print(dict)
         email = data['email']
         password = data['password']
         print("email: {}".format(email))
@@ -277,7 +287,6 @@ def loginApp():
             users = get_model().getUserByIdApp(userId)
             userJson = jsonify(users)
             return userJson
-
 
 @crud.route('/app/admin', methods=['GET', 'POST'])
 def adminApp():
@@ -351,7 +360,6 @@ def showEventsByIdApp(id):
     token = request.args.get('page_token', None)
     if token:
         token = token.encode('utf-8')
-
     events = get_model().showEventsByUserApp(id)
 
     print(type(events))
@@ -360,7 +368,7 @@ def showEventsByIdApp(id):
         eventsJson = jsonify(events)
         return eventsJson
     else:
-        return jsonify(None)
+        return "None"
 
 
 

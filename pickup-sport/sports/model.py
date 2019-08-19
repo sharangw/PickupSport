@@ -159,14 +159,10 @@ def showEventsByUserApp(userId):
     for r in playerResult:
         print(r.eventId)
         eventResult = Event.query.filter_by(id = r.eventId).first()
-        eventList.append(eventResult)
+        if eventResult is not None:
+            eventList.append(eventResult)
     print("events: {}".format(eventList))
-
-    query = (db.session.query(Event, Players)
-             .join(Event, Players.eventId == Event.id, Players.userId == userId)
-             .order_by(Event.organizer)
-            )
-    events = builtin_list(map(from_sql, query.all()))
+    events = builtin_list(map(from_sql, eventList))
     if not events:
         return None
     return events

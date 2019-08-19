@@ -9,6 +9,9 @@
     <string name="manageevents">Manage events</string>
     <string name="managevenues">Manage venues</string>
     <string name="error_invalid">Username or password is incorrect</string>
+    <string name="error_empty">Please enter a username and password</string>
     <string name="error_admin">You are not an admin!</string>
+    <string name="error_mandatory">This is a mandatory field</string>
+    <string name="test">TEST</string>
 
 </resources>

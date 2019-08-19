@@ -40,11 +40,11 @@ class VenueAdapter(private val context: Context, private val venuesModelArrayLis
             holder = ViewHolder()
             val inflater = context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            convertView = inflater.inflate(R.layout.user, null, true)
+            convertView = inflater.inflate(R.layout.venue, null, true)
 
             holder.vname = convertView!!.findViewById(R.id.name) as TextView
-            holder.vlocation = convertView.findViewById(R.id.email) as TextView
-//            holder.time = convertView.findViewById(R.id.time) as TextView
+            holder.vlocation = convertView.findViewById(R.id.location) as TextView
+            holder.vdescription = convertView.findViewById(R.id.details) as TextView
 
             convertView.tag = holder
         } else {
@@ -54,7 +54,7 @@ class VenueAdapter(private val context: Context, private val venuesModelArrayLis
 
         holder.vname!!.text = "Name: " + venuesModelArrayList[position].getName()
         holder.vlocation!!.text = "Location: " + venuesModelArrayList[position].getLocation()
-//        holder.time!!.text = "Email: " + eventsModelArrayList[position].getTimes()
+        holder.vdescription!!.text = "Details: " + venuesModelArrayList[position].getDescriptions()
 
         return convertView
     }
