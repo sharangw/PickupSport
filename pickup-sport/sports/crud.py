@@ -370,6 +370,81 @@ def showEventsByIdApp(id):
     else:
         return "None"
 
+@crud.route('/app/<uid>/join/<eid>', methods=['GET', 'POST'])
+def joinEventApp(uid, eid):
+
+    events = get_model().getEventById(eid)
+    users = get_model().getUserById(uid)
+
+    if request.method == 'GET':
+        userAdded = get_model().addUserToEvent(uid, eid)
+        if userAdded == 0:
+            return "User cannot be added to this event"
+        elif userAdded == -1:
+            return "Player already added"
+        else:
+            return "Success"
+
+@crud.route('/app/<uid>/leave/<eid>', methods=['GET', 'POST'])
+def leaveEventApp(uid, eid):
+
+    events = get_model().getEventById(eid)
+    users = get_model().getUserById(uid)
+
+    if request.method == 'GET':
+        userAdded = get_model().removeUserFromEvent(uid, eid)
+        if userAdded == 0:
+            return "No players in this event"
+        elif userAdded == -1:
+            return "Player has not joined this event"
+        else:
+            return "Success"
+
+@crud.route('/app/admin/users/<id>', methods=['GET', 'POST'])
+def removeUserApp(id):
+
+    get_model().deleteUser(id)
+
+    return "Deleted user"
+
+@crud.route('/app/admin/events/<id>', methods=['GET', 'POST'])
+def removeEventsApp(id):
+
+    get_model().deleteEvent(id)
+
+    return "Deleted event"
+
+@crud.route('/app/admin/venues/<id>', methods=['GET', 'POST'])
+def removeVenuesApp(id):
+
+    get_model().deleteVenue(id)
+
+    return "Deleted venue"
+
+@crud.route('/app/admin/venue/add', methods=['GET','POST'])
+def addVenueApp():
+    if request.method == 'POST':
+        venue = request.form.to_dict(flat=True)
+        venueCreated = get_model().createVenue(venue)
+        if (venueCreated):
+            return "Success"
+        else:
+            return "Failure"
+
+@crud.route('/app/admin/event/add', methods=['GET','POST'])
+def addEventApp():
+    if request.method == 'POST':
+        event = request.form.to_dict(flat=True)
+        eventCreated = get_model().createEvent(event)
+        if (eventCreated):
+            return "Success"
+        else:
+            return "Failure"
+
+
+
+
+
 
 
 

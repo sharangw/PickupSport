@@ -40,7 +40,8 @@ class EventAdapter(private val context: Context, private val eventsModelArrayLis
             holder = ViewHolder()
             val inflater = context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            convertView = inflater.inflate(R.layout.event, null, true)
+//            convertView = inflater.inflate(R.layout.event, null, true)
+            convertView = inflater.inflate(R.layout.event, parent, false)
 
             holder.organizer = convertView!!.findViewById(R.id.name) as TextView
             holder.description = convertView.findViewById(R.id.description) as TextView

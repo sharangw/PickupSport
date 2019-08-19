@@ -264,6 +264,42 @@ def addUserToEvent(uid, eid):
     else: # players exceed capacity - event full
         return 0
 
+
+def removeUserFromEvent(uid, eid):
+    dict = {'userId': uid, 'eventId': eid}
+    player = Players(userId=uid, eventId=eid)
+
+    event = Event.query.filter_by(id=eid).first()
+    print("players: {}".format(event.players))
+
+    if (event.players > 0):
+
+        playerJoined = 0  # check if user has joined the event
+
+        playerEvents = Players.query.filter_by(userId=uid).with_entities(Players.eventId).all()
+
+        pEvents = [value for value, in playerEvents]  # convert to list of ints with eventIds
+
+        if int(eid) in pEvents:
+            print("user can leave this event")
+            playerJoined += 1
+        else:
+            print("user has not joined this event")
+
+        if playerJoined == 0:
+            return -1
+        else:
+            event.players = event.players - 1
+            playerToRemove = Players.query.filter_by(userId=uid,eventId=eid).first()
+            playerToRemoveId = playerToRemove.id
+            print("delete player with id: {}".format(playerToRemoveId))
+            db.session.query(Players).filter(Players.id == playerToRemoveId).delete()
+            db.session.commit()
+
+        return 1
+    else:  # no players
+        return 0
+
 def getuser(email,password):
     userInfo = User.query.filter_by(email=email).first()
     if (userInfo is not None):
@@ -329,6 +365,12 @@ def createVenue(data):
     db.session.add(venue)
     db.session.commit()
     return from_sql(venue)
+
+def createEvent(data):
+    event = Event(**data)
+    db.session.add(event)
+    db.session.commit()
+    return from_sql(event)
 
 # [END create]
 

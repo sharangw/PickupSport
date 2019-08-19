@@ -1,13 +1,17 @@
 package com.example.pickupsport
-import android.content.Context
+
 import android.os.Bundle
-import android.util.Log
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.user_home.view.*
+import kotlinx.android.synthetic.main.user_event.*
+import kotlinx.android.synthetic.main.user_event.view.*
+import kotlinx.android.synthetic.main.user_event.view.joineventlist
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jetbrains.anko.doAsync
@@ -16,50 +20,55 @@ import org.json.JSONArray
 import org.json.JSONException
 import java.util.ArrayList
 
-class user_home: Fragment() {
+class userEvents : Fragment(){
+
     private var response: String? = null
     private var eventlist: ListView? = null
     private var eventModelArrayList: ArrayList<Event_Model>? = null
     private var eventAdapter: EventAdapter? = null
-    private var userId:String? = ""
+    private lateinit var listView: ListView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        val view =  inflater.inflate(R.layout.user_home, container, false)
-        val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
-        val id = pref.getString("userId", "empty")
-        println("user: " + id)
-        userId = id
-        view.joinevent.setOnClickListener {
-            (activity as NavigationHost).navigateTo(userEvents(), false)
-        }
-        view.logoutUser.setOnClickListener({
+        val view =  inflater.inflate(R.layout.user_event, container, false)
+
+        view.back_buttonevent.setOnClickListener({
             // Navigate to the next Fragment.
-            (activity as NavigationHost).navigateTo(LoginFragment(), false)
+            (activity as NavigationHost).navigateTo(user_home(), false)
         })
+
         doAsync {
             val events = getEvents()
             response = events
             uiThread {
                 println("response")
                 println(response)
-                if (response == "None"){
-                    view.hidetext.text = "Currently you don't have any events on your account."
-                }
-                else{
-                    eventlist = view.eventlist1
-                    eventModelArrayList = getInfo(response!!)
-                    eventAdapter = EventAdapter(view.context, eventModelArrayList!!)
-                    eventlist!!.adapter = eventAdapter
-                }
+                eventlist = view.joineventlist
+                eventModelArrayList = getInfo(response!!)
+                eventAdapter = EventAdapter(view.context, eventModelArrayList!!)
+                eventlist!!.adapter = eventAdapter
             }
         }
+
+
+//        var list = mutableListOf<ContactsContract.CommonDataKinds.Event>()
+//        view.joineventlist.adapter = ArrayAdapter<String>(view.context, android.R.layout.simple_list_item_1)
+//
+//        val context = this
+//        view.joineventlist.setOnItemClickListener {  _, _, position, _ ->
+//            val selectedEvent = eventAdapter[]
+//
+//        }
+
         return view
     }
+
+
     fun getEvents() : String? {
-        val idStr = 3.toString()
-        val url = "https://my-apad-project.appspot.com/app/events"+"/"+userId
-        //val url = "https://my-apad-project.appspot.com/app/events"+"/"+8
+
+        val url = "https://my-apad-project.appspot.com/app/events"
+
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -71,6 +80,7 @@ class user_home: Fragment() {
         println(bodyStr)
         return bodyStr
     }
+
     fun getInfo(response: String): ArrayList<Event_Model> {
         val eventModelArrayList = ArrayList<Event_Model>()
         try {
@@ -86,6 +96,7 @@ class user_home: Fragment() {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
+
         return eventModelArrayList
     }
 }
