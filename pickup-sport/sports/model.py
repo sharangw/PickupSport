@@ -218,6 +218,14 @@ def showAllVenuesApp(limit = 50, cursor=None):
     print(type(venues))
     return (venues, next_page)
 
+def searchEvents(desc):
+
+    search = "%{}%".format(desc)
+    searchEventQuery = Event.query.filter(Event.description.like(search))
+    events = builtin_list(map(from_sql, searchEventQuery.all()))
+    print(events)
+    return events
+
 def read(id):
     result = User.query.get(id)
     if not result:
@@ -377,12 +385,6 @@ def showAllEventsAndVenue():
 
     events = db.session.query(Event,Venue).join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).all()
     return events
-
-# def showAllEventsAndVenueApp():
-#
-#     query = (Event.query.join(Event, Venue.id == Event.venueId).add_columns(Event.id, Event.organizer, Event.time, Event.length, Event.description, Event.venueId, Venue.name).order_by(Event.name))
-#     events = builtin_list(map(from_sql, query.all()))
-#     return events
 
 def create(data):
     user = User(**data)
