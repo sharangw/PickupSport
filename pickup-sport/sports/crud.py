@@ -19,6 +19,9 @@ import ast, json
 
 crud = Blueprint('crud', __name__)
 
+@crud.route('/info')
+def showinfo():
+    return render_template("info.html")
 
 # [START list]
 @crud.route('/signup', methods=['GET', 'POST'])
@@ -132,10 +135,6 @@ def showAllVenues():
 
     venues, next_page_token = get_model().showAllVenues(cursor=token)
     return render_template("venues.html", venues = venues, next_page_token = next_page_token)
-
-@crud.route('/info')
-def showinfo():
-    return render_template("info.html")
 
 # [START add]
 @crud.route('/add', methods=['GET', 'POST'])
@@ -446,8 +445,19 @@ def addEventApp():
             return "Failure"
 
 
+@crud.route('/app/events/search', methods=['GET'])
+def searchEventsApp():
 
+    if request.method == 'GET':
+        query = request.args.get('description')
 
+        events = get_model().searchEvents(query)
+        eventsJson = jsonify(events)
+
+        return eventsJson
+
+    else:
+        return "Failure"
 
 
 

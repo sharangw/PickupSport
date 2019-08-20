@@ -35,6 +35,11 @@ class userEvents : Fragment(){
         // Inflate the layout for this fragment
         val view =  inflater.inflate(R.layout.user_event, container, false)
 
+
+        view.search_buttonevent.setOnClickListener {
+            (activity as NavigationHost).navigateTo(searchEvents(), false)
+        }
+
         view.back_buttonevent.setOnClickListener({
             // Navigate to the next Fragment.
             (activity as NavigationHost).navigateTo(user_home(), false)
