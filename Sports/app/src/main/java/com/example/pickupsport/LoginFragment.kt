@@ -17,6 +17,8 @@ import org.jetbrains.anko.doAsync
 import kotlinx.android.synthetic.main.listing_fragment.view.*
 import org.jetbrains.anko.uiThread
 import android.content.Context
+import kotlinx.android.synthetic.main.admin_home.*
+
 /**
  * Fragment representing the login screen for Shrine.
  */
@@ -107,13 +109,19 @@ class LoginFragment : Fragment() {
                 }
 
                 var realId = resp?.substring(resp?.indexOf("id")+4,resp?.indexOf(",",resp?.indexOf("id")))
+                var userName = resp?.substring(resp?.indexOf("name")+6,resp?.indexOf(",",resp?.indexOf("name")))
+//                var quoteIndex = userName!!.indexOf("\"")
+                var size = userName!!.length-1
+                userName = userName?.substring(1,size)
                 setMyId(realId)
                 println("real id: " + realId)
 
                 val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
                 val edt = pref.edit()
                 edt.putString("userId", realId)
+                edt.putString("userName", userName)
                 edt.commit()
+
             }
         }
         view.username_edit_text.setOnKeyListener({ _, _, _ ->
@@ -126,6 +134,7 @@ class LoginFragment : Fragment() {
             password_text_input.error = null
             false
         })
+
     }
 
     fun setMyId(id: String?) {

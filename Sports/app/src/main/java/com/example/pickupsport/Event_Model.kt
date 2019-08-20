@@ -2,6 +2,7 @@ package com.example.pickupsport
 
 class Event_Model {
 
+    var id: Int = 0
     var organizer: String? = null
     var description: String? = null
     var time: String? = null
@@ -24,6 +25,13 @@ class Event_Model {
         this.description = description
     }
 
+    fun getIds(): Int {
+        return id
+    }
+
+    fun setIds(id: Int) {
+        this.id = id
+    }
 
     fun getTimes(): String {
         return time.toString()
@@ -33,6 +41,9 @@ class Event_Model {
         this.time = time
     }
 
+    override fun toString(): String {
+        return this.id.toString()
+    }
 
 
 }

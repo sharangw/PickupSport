@@ -5,7 +5,20 @@
               android:layout_height="match_parent">
 
     <TextView
-            android:text="My Events"
+            android:text="Welcome!"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:textSize="20sp"
+            android:textColor="#000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/nameView"/>
+
+    <TextView
+            android:text="My Scheduled Events"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:textSize="20sp"
+            android:textColor="#000"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" android:id="@+id/textView"/>
 
@@ -13,7 +26,7 @@
             android:text=""
             android:layout_width="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="15sp"
+            android:textSize="0dp"
             android:textStyle="bold"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -25,15 +38,31 @@
             android:id="@+id/eventlist1"
     />
 
-    <Button android:text="Join Event"
-            android:layout_width="150dp"
-            android:layout_height="70dp"
-            android:id="@+id/joinevent"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+        <Button android:text="Join Event"
+                android:layout_width="185dp"
+                android:layout_height="60dp"
+                android:id="@+id/joinevent"
+                />
+
+        <Button android:text="Leave Event"
+                android:layout_width="185dp"
+                android:layout_height="60dp"
+                android:id="@+id/leavevent"
+                />
+
+    </LinearLayout>
 
     <Button
             android:text="Log Out"
             android:background="@color/colorAccent"
-            android:layout_width="150dp"
-            android:layout_height="70dp"
-            android:id="@+id/logoutUser"/>
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:id="@+id/logoutUser"
+            android:layout_gravity="center_horizontal"/>
+
 </LinearLayout>

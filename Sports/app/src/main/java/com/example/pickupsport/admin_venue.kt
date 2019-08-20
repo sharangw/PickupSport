@@ -16,6 +16,7 @@ import java.lang.Exception
 import java.util.ArrayList
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.admin_venue.*
 import kotlinx.android.synthetic.main.admin_venue.view.venuelist
 import kotlinx.android.synthetic.main.listing_fragment.view.*
@@ -47,10 +48,49 @@ class admin_venue : Fragment(){
                 venueModelArrayList = getInfo(response!!)
                 venueAdapter = VenueAdapter(view.context, venueModelArrayList!!)
                 venuelist!!.adapter = venueAdapter
+
+                venuelist!!.setOnItemClickListener { _, _, position, _ ->
+                    val selectedVenue = venueAdapter!!.getItem(position)
+                    val selectedVenueId = selectedVenue.toString()
+                    println("selected venue id: " + selectedVenueId)
+
+                    doAsync {
+                        val removeVenueResp = removeVenue(selectedVenueId)
+                        println("removeVenueResp: " + removeVenueResp)
+                        uiThread {
+
+                            if (removeVenueResp.equals("Deleted venue")) {
+                                val dur = Toast.LENGTH_SHORT
+                                val message = "Venue was deleted"
+                                val toast = Toast.makeText(view.context, message, dur)
+                                toast.show()
+                                (activity as NavigationHost).navigateTo(admin_home(), false)
+                            } else {
+                                println("Something went wrong deleting venue")
+                            }
+                        }
+                    }
+
+                }
             }
         }
 
         return view
+    }
+
+    fun removeVenue(venueId:String?) : String? {
+
+        val url = "https://my-apad-project.appspot.com/app/admin/venues/"+venueId
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "Android")
+            .build()
+        val response = client.newCall(request).execute()
+        val bodyStr =  response?.body()?.string() // this can be consumed only once
+        println(bodyStr)
+        return bodyStr
     }
 
     fun getVenues() : String? {
@@ -70,21 +110,6 @@ class admin_venue : Fragment(){
     }
 
 
-    fun getStrings(response: String): ArrayList<String> {
-        val venueArrayList = ArrayList<String>()
-        try {
-            val dataArray = JSONArray(response)
-            for (i in 0 until dataArray.length()) {
-                val dataobj = dataArray.getJSONObject(i)
-                venueArrayList.add(dataobj.toString())
-            }
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-
-        return venueArrayList
-    }
-
     fun getInfo(response: String): ArrayList<Venue_Model> {
         val venueModelArrayList = ArrayList<Venue_Model>()
         try {
@@ -95,6 +120,7 @@ class admin_venue : Fragment(){
                 venueModel.setName(dataobj.getString("name"))
                 venueModel.setLocation(dataobj.getString("location"))
                 venueModel.setDescriptions(dataobj.getString("description"))
+                venueModel.setvIds(dataobj.getInt("id"))
                 venueModelArrayList.add(venueModel)
             }
         } catch (e: JSONException) {

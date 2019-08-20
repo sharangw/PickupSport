@@ -5,6 +5,7 @@ class Venue_Model {
     var vlocation : String? = null
     var vname: String? = null
     var vdescription: String? = null
+    var vId: String? = null
 
 
     fun getName(): String {
@@ -32,5 +33,14 @@ class Venue_Model {
     fun setLocation(vlocation: String) {
         this.vlocation = vlocation
     }
+
+    fun setvIds(vId: Int) {
+        this.vId = vId.toString()
+    }
+
+    override fun toString() : String {
+        return this.vId.toString()
+    }
+
 
 }

@@ -11,7 +11,7 @@
             android:layout_marginTop="10dp"
             android:textSize="20sp"
             android:textColor="#000"
-            android:text="Manage Users"/>
+            android:text="Remove Users"/>
 
     <ListView
             android:layout_width="match_parent"

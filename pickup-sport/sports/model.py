@@ -124,17 +124,6 @@ def insertuser():
     db.session.commit()
     return from_sql(user)
 
-def showAllUsers(limit=10, cursor=None):
-    cursor = int(cursor) if cursor else 0
-    query = (User.query
-             .order_by(User.name)
-             .limit(limit)
-             .offset(cursor))
-    users = builtin_list(map(from_sql, query.all()))
-    next_page = cursor + limit if len(users) == limit else None
-    return (users, next_page)
-# [END list]
-
 def showEventsByUser(userId):
     playerResult = Players.query.filter_by(userId = userId).all()
     print("result: {}".format(playerResult))
@@ -167,6 +156,26 @@ def showEventsByUserApp(userId):
         return None
     return events
 
+def showAllUsers(limit=10, cursor=None):
+    cursor = int(cursor) if cursor else 0
+    query = (User.query
+             .order_by(User.name)
+             .limit(limit)
+             .offset(cursor))
+    users = builtin_list(map(from_sql, query.all()))
+    next_page = cursor + limit if len(users) == limit else None
+    return (users, next_page)
+
+def showAllUsersApp(limit=50, cursor=None):
+    cursor = int(cursor) if cursor else 0
+    query = (User.query
+             .order_by(User.name)
+             .limit(limit)
+             .offset(cursor))
+    users = builtin_list(map(from_sql, query.all()))
+    next_page = cursor + limit if len(users) == limit else None
+    return (users, next_page)
+
 def showAllEvents(limit = 10, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (Event.query
@@ -177,7 +186,28 @@ def showAllEvents(limit = 10, cursor=None):
     next_page = cursor + limit if len(events) == limit else None
     return (events, next_page)
 
+def showAllEventsApp(limit = 50, cursor=None):
+    cursor = int(cursor) if cursor else 0
+    query = (Event.query
+             .order_by(Event.organizer)
+             .limit(limit)
+             .offset(cursor))
+    events = builtin_list(map(from_sql, query.all()))
+    next_page = cursor + limit if len(events) == limit else None
+    return (events, next_page)
+
 def showAllVenues(limit = 10, cursor=None):
+    cursor = int(cursor) if cursor else 0
+    query = (Venue.query
+             .order_by(Venue.name)
+             .limit(limit)
+             .offset(cursor))
+    venues = builtin_list(map(from_sql, query.all()))
+    next_page = cursor + limit if len(venues) == limit else None
+    print(type(venues))
+    return (venues, next_page)
+
+def showAllVenuesApp(limit = 50, cursor=None):
     cursor = int(cursor) if cursor else 0
     query = (Venue.query
              .order_by(Venue.name)

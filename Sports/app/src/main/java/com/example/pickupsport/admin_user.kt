@@ -1,5 +1,6 @@
 package com.example.pickupsport
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import java.lang.Exception
 import java.util.ArrayList
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.listing_fragment.view.*
 import org.jetbrains.anko.uiThread
 
@@ -47,10 +49,48 @@ class admin_user : Fragment(){
                 customAdapter = CustomAdapter(view.context, userModelArrayList!!)
                 userlist!!.adapter = customAdapter
 
+                userlist!!.setOnItemClickListener { _, _, position, _ ->
+                    val selectedUser = customAdapter!!.getItem(position)
+                    val selectedUserId = selectedUser.toString()
+                    println("selected user id: " + selectedUserId)
+
+                    doAsync {
+                        val removeUserResp = removeUser(selectedUserId)
+                        println("removeUserResp: " + removeUserResp)
+                        uiThread {
+
+                            if (removeUserResp.equals("Deleted user")) {
+                                val dur = Toast.LENGTH_SHORT
+                                val message = "User was deleted"
+                                val toast = Toast.makeText(view.context, message, dur)
+                                toast.show()
+                                (activity as NavigationHost).navigateTo(admin_home(), false)
+                            } else {
+                                println("Something went wrong deleting user")
+                            }
+                        }
+                    }
+
+                }
             }
         }
 
         return view
+    }
+
+    fun removeUser(userId:String?) : String? {
+
+        val url = "https://my-apad-project.appspot.com/app/admin/users/"+userId
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "Android")
+            .build()
+        val response = client.newCall(request).execute()
+        val bodyStr =  response?.body()?.string() // this can be consumed only once
+        println(bodyStr)
+        return bodyStr
     }
 
      fun getUsers() : String? {
@@ -67,22 +107,6 @@ class admin_user : Fragment(){
         println("bodyStr")
         println(bodyStr)
         return bodyStr
-    }
-
-
-    fun getStrings(response: String): ArrayList<String> {
-        val userArrayList = ArrayList<String>()
-        try {
-            val dataArray = JSONArray(response)
-            for (i in 0 until dataArray.length()) {
-                val dataobj = dataArray.getJSONObject(i)
-                userArrayList.add(dataobj.toString())
-            }
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-
-        return userArrayList
     }
 
     fun getInfo(response: String): ArrayList<User_Model> {

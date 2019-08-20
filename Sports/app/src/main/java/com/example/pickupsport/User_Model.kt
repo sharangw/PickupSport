@@ -58,4 +58,7 @@ class User_Model {
         this.email = name
     }
 
+    override fun toString(): String {
+        return this.id.toString()
+    }
 }

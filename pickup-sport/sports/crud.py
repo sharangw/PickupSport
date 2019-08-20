@@ -314,7 +314,7 @@ def showAllEventsApp():
     if token:
         token = token.encode('utf-8')
 
-    events, next_page_token = get_model().showAllEvents(cursor=token)
+    events, next_page_token = get_model().showAllEventsApp(cursor=token)
     print(type(events))
     print(events)
     if events is not None:
@@ -330,7 +330,7 @@ def showAllVenuesApp():
     if token:
         token = token.encode('utf-8')
 
-    venues, next_page_token = get_model().showAllVenues(cursor=token)
+    venues, next_page_token = get_model().showAllVenuesApp(cursor=token)
     print(type(venues))
     print(venues)
     if venues is not None:
@@ -345,7 +345,7 @@ def showAllUsersApp():
     if token:
         token = token.encode('utf-8')
 
-    users, next_page_token = get_model().showAllUsers(cursor=token)
+    users, next_page_token = get_model().showAllUsersApp(cursor=token)
 
     print(type(users))
     print(users)

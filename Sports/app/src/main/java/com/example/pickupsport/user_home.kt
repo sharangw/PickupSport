@@ -28,11 +28,21 @@ class user_home: Fragment() {
         val view =  inflater.inflate(R.layout.user_home, container, false)
         val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
         val id = pref.getString("userId", "empty")
+        val username = pref.getString("userName", "empty")
         println("user: " + id)
+        println("name: " + username)
+
+        view.nameView.text = "Welcome " + username +"!"
+
         userId = id
         view.joinevent.setOnClickListener {
             (activity as NavigationHost).navigateTo(userEvents(), false)
         }
+
+        view.leavevent.setOnClickListener {
+            (activity as NavigationHost).navigateTo(userEventsLeave(), false)
+        }
+
         view.logoutUser.setOnClickListener({
             // Navigate to the next Fragment.
             (activity as NavigationHost).navigateTo(LoginFragment(), false)
@@ -45,6 +55,8 @@ class user_home: Fragment() {
                 println(response)
                 if (response == "None"){
                     view.hidetext.text = "Currently you don't have any events on your account."
+                    view.hidetext.textSize = 15f
+                    view.leavevent.visibility = View.INVISIBLE
                 }
                 else{
                     eventlist = view.eventlist1

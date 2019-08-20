@@ -1,5 +1,6 @@
 package com.example.pickupsport
 
+import android.content.Context
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.user_event.*
 import kotlinx.android.synthetic.main.user_event.view.*
@@ -48,22 +50,63 @@ class userEvents : Fragment(){
                 eventModelArrayList = getInfo(response!!)
                 eventAdapter = EventAdapter(view.context, eventModelArrayList!!)
                 eventlist!!.adapter = eventAdapter
+
+                eventlist!!.setOnItemClickListener{ _, _, position, _ ->
+                    val selectedEvent = eventAdapter!!.getItem(position)
+                    val selectedEventId = selectedEvent.toString()
+                    println("selected event id: " + selectedEventId)
+
+                    val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
+                    val userId = pref.getString("userId", "empty")
+                    println("user: " + userId)
+
+                    doAsync {
+                        val joinEventResp = jointEvent(userId, selectedEventId)
+                        println("joinEventResp: " + joinEventResp)
+                        uiThread {
+
+                            if (joinEventResp.equals("Success")) {
+                                val dur = Toast.LENGTH_SHORT
+                                val message = "You have now joined this event!"
+                                val toast = Toast.makeText(view.context, message, dur)
+                                toast.show()
+                                (activity as NavigationHost).navigateTo(user_home(), false)
+                            } else if (joinEventResp.equals("Player already added")) {
+                                val joinError1 = "Looks like you have already joined this event"
+                                println(joinError1)
+                                val duration = Toast.LENGTH_LONG
+                                val toast = Toast.makeText(view.context, joinError1, duration)
+                                toast.show()
+                            } else if (joinEventResp.equals("User cannot be added to this event")) {
+                                val joinError2 = "This event is full"
+                                println(joinError2)
+                                val duration = Toast.LENGTH_LONG
+                                val toast = Toast.makeText(view.context, joinError2, duration)
+                                toast.show()
+                            }
+                        }
+                    }
+                }
             }
         }
-
-
-//        var list = mutableListOf<ContactsContract.CommonDataKinds.Event>()
-//        view.joineventlist.adapter = ArrayAdapter<String>(view.context, android.R.layout.simple_list_item_1)
-//
-//        val context = this
-//        view.joineventlist.setOnItemClickListener {  _, _, position, _ ->
-//            val selectedEvent = eventAdapter[]
-//
-//        }
 
         return view
     }
 
+    fun jointEvent(userId:String?, eventId:String) : String? {
+        val url = "https://my-apad-project.appspot.com/app/"+userId+"/join/"+eventId
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "Android")
+            .build()
+        val response = client.newCall(request).execute()
+        val bodyStr =  response?.body()?.string() // this can be consumed only once
+        println("bodyStr")
+        println(bodyStr)
+        return bodyStr
+    }
 
     fun getEvents() : String? {
 
@@ -91,6 +134,7 @@ class userEvents : Fragment(){
                 eventsModel.setOrganizers(dataobj.getString("organizer"))
                 eventsModel.setDescriptions(dataobj.getString("description"))
                 eventsModel.setTimes(dataobj.getString("time"))
+                eventsModel.setIds(dataobj.getInt("id"))
                 eventModelArrayList.add(eventsModel)
             }
         } catch (e: JSONException) {
